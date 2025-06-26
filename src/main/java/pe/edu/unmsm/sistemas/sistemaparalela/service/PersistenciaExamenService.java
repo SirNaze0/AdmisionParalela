@@ -51,5 +51,17 @@ public class PersistenciaExamenService {
         entityManager.createQuery("DELETE FROM Examen").executeUpdate();
     }
 
+    @Transactional
+    public void guardarResultado(Long postulanteId, int nota) {
+        Postulante postulante = postulanteRepo.findById(postulanteId)
+                .orElseThrow(() -> new RuntimeException("Postulante no encontrado"));
+
+        Resultado resultado = new Resultado();
+        resultado.setPostulante(postulante);
+        resultado.setNota(nota);
+
+        entityManager.persist(resultado);
+    }
+
 
 }
