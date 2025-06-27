@@ -1,6 +1,7 @@
 package pe.edu.unmsm.sistemas.sistemaparalela.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import pe.edu.unmsm.sistemas.sistemaparalela.dto.ArchivoGeneradoDTO;
 import java.io.File;
