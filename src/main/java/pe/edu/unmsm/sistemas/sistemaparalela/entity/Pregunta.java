@@ -7,7 +7,7 @@ import org.hibernate.annotations.BatchSize;
 import java.util.List;
 
 @Entity
-@BatchSize(size = 500)
+@BatchSize(size = 300)
 @Data
 @Table(name="preguntas")
 public class Pregunta {

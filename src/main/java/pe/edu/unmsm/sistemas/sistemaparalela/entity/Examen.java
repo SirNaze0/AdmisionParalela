@@ -8,12 +8,12 @@ import java.util.List;
 
 @Data
 @Entity
-@BatchSize(size = 500)
+@BatchSize(size = 300)
 @Table(name="examenes")
 public class Examen {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pregunta_seq")
-    @SequenceGenerator(name = "pregunta_seq", sequenceName = "pregunta_seq", allocationSize = 500)
+    @SequenceGenerator(name = "pregunta_seq", sequenceName = "pregunta_seq", allocationSize = 300)
     private Long examenid;
     private String tipoexamen;
     @OneToMany(mappedBy = "examen", cascade = CascadeType.ALL)

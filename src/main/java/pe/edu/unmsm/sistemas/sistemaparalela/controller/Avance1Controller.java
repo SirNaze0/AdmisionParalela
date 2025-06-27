@@ -28,10 +28,16 @@ public class Avance1Controller {
         System.out.println("Tiempo total del request: " + duracion + " ms");
         return new ResponseEntity<>(respuesta, HttpStatus.OK);
     }
+    //Endpoint para limpiar las tablas(Respuesta,Pregunta y Examen)
     @PostMapping("/limpiar")
     public ResponseEntity<Void> generarExamenes() {
         // Reiniciar tablas antes de ejecutar tod
         persistenciaExamenService.reiniciarTablas();
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    //Endpoint para guardar datos en H2(BP Y BR) POST PIRLO (RECIBE JSON(proveniente de un .csv))
+    //Endpoint para guardar datos en H2(Postulantes) POST NAZE
+    //Endpoint para Limpiar tablas en H2(BP y BR) POST PIRLO
+    //Endpoint para Limpiar tabla en H2(Postulantes) POST NAZE
+
 }

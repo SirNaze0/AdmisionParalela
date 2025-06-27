@@ -8,12 +8,12 @@ import java.util.List;
 
 @Entity
 @Data
-@BatchSize(size = 500)
+@BatchSize(size = 300)
 @Table(name="postulantes")
 public class Postulante {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pregunta_seq")
-    @SequenceGenerator(name = "pregunta_seq", sequenceName = "pregunta_seq", allocationSize = 500)
+    @SequenceGenerator(name = "pregunta_seq", sequenceName = "pregunta_seq", allocationSize = 300)
     private Long postulanteid;
     private String nombres;
     private String apellidos;

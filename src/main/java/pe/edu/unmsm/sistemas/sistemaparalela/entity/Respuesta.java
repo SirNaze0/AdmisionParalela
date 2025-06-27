@@ -5,13 +5,13 @@ import lombok.Data;
 import org.hibernate.annotations.BatchSize;
 
 @Entity
-@BatchSize(size = 500)
+@BatchSize(size = 300)
 @Data
 @Table(name="respuestas")
 public class Respuesta {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pregunta_seq")
-    @SequenceGenerator(name = "pregunta_seq", sequenceName = "pregunta_seq", allocationSize = 500)
+    @SequenceGenerator(name = "pregunta_seq", sequenceName = "pregunta_seq", allocationSize = 300)
     private Long respuestaid;
     private String textorespuesta;
     private boolean escorrecta;
