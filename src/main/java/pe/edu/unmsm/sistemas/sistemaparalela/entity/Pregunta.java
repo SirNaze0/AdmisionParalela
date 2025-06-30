@@ -13,7 +13,7 @@ import java.util.List;
 public class Pregunta {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pregunta_seq")
-    @SequenceGenerator(name = "pregunta_seq", sequenceName = "pregunta_seq", allocationSize = 500)
+    @SequenceGenerator(name = "pregunta_seq", sequenceName = "pregunta_seq", allocationSize = 300)
     private Long preguntaid;
     @Column(columnDefinition = "text")
     private String enunciadopregunta;
