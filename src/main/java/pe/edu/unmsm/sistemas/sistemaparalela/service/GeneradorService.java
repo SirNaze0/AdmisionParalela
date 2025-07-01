@@ -1,9 +1,9 @@
 package pe.edu.unmsm.sistemas.sistemaparalela.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import pe.edu.unmsm.sistemas.sistemaparalela.dto.ArchivoGeneradoDTO;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,7 +12,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
-public class Avance1Service {
+public class GeneradorService {
     @Autowired
     private ZipService zipService;
     @Autowired

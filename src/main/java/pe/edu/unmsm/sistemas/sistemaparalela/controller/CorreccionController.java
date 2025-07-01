@@ -17,7 +17,29 @@ public class CorreccionController {
     
     @Autowired
     private CorreccionService correccionService;
-
+    // Endpoint: POST /api/correccion/procesar
+    // ENTRADA:
+    //   - Un archivo CSV cargado como formulario multipart (parametro "archivo").
+    // PROCESO:
+    //   1. Verifica si el archivo está vacío.
+    //      - Si lo está, retorna una respuesta con mensaje "Archivo vacío" y estado HTTP 400 (BAD_REQUEST).
+    //   2. Verifica que el archivo tenga extensión `.csv`.
+    //      - Si no lo es, retorna una respuesta con mensaje "Solo se permiten archivos CSV" y estado HTTP 400.
+    //   3. Si las validaciones son exitosas, se llama a `correccionService.procesar(archivo)` que:
+    //        - Lee las fichas ópticas contenidas en el archivo,
+    //        - Corrige las respuestas comparándolas con las respuestas correctas,
+    //        - Calcula y devuelve resultados agregados como:
+    //            - cantidad de exámenes corregidos,
+    //            - cantidad de errores,
+    //            - mensaje de estado.
+    // SALIDA:
+    //   - Un objeto `ResultadoCorreccionDTO` con:
+    //       - mensaje descriptivo del resultado,
+    //       - número de exámenes corregidos exitosamente,
+    //       - número de errores encontrados.
+    //   - Código HTTP 200 (OK) si la operación fue exitosa.
+    //   - Código HTTP 400 si el archivo es inválido.
+    //   - Código HTTP 500 si ocurre un error al procesar el archivo.
     @PostMapping(value = "/procesar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, 
                  produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResultadoCorreccionDTO> procesarFichasOpticas(
