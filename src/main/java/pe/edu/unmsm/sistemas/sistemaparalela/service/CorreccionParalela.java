@@ -82,21 +82,20 @@ public class CorreccionParalela implements Callable<ResultadoCorreccionIndividua
         
         for (int i = 0; i < preguntas.size(); i++) {
             String respuestaMarcada = respuestasMarcadas[i];
-            
             // Si es nulo (*) o vacío, no suma ni resta
             if ("*".equals(respuestaMarcada) || " ".equals(respuestaMarcada)) {
                 continue;
             }
-            
             // Buscar la respuesta correcta
             List<ExamenCompleto.RespuestaSimple> respuestas = preguntas.get(i).getRespuestas();
             String respuestaCorrecta = encontrarRespuestaCorrecta(respuestas);
             
             if (respuestaCorrecta != null && respuestaCorrecta.equals(respuestaMarcada)) {
-                correctas++;
+                correctas=correctas+20;
+            }else{
+                correctas=correctas-2;
             }
         }
-        
         return correctas;
     }
 
