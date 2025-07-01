@@ -1,0 +1,94 @@
+<div class="app-layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">
+        <fa-icon [icon]="faSchool" style="color: #4d44b5; font-size: 24px;"></fa-icon>
+      </div>
+      <h1>UNMSM</h1>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="nav-menu">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-item">
+        <fa-icon [icon]="faChartBar" class="nav-icon"></fa-icon>
+        <span>Dashboard</span>
+      </a>
+      
+      <a routerLink="/generar-examenes" routerLinkActive="active" class="nav-item">
+        <fa-icon [icon]="faFileAlt" class="nav-icon"></fa-icon>
+        <span>Generar Exámenes</span>
+      </a>
+      
+      <a routerLink="/banco-preguntas" routerLinkActive="active" class="nav-item">
+        <fa-icon [icon]="faBook" class="nav-icon"></fa-icon>
+        <span>Banco de Preguntas</span>
+      </a>
+    </nav>
+
+    <div class="system-info">
+      <h3>Sistema de Admisión Paralela</h3>
+      <p>Universidad Nacional Mayor de San Marcos</p>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>Panel de Control</h1>
+      <p>Estadísticas y acciones rápidas del sistema</p>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="cargando" class="loading-section">
+      <div class="loading-spinner"></div>
+      <p>Cargando datos...</p>
+    </div>
+
+    <!-- Tarjetas de estadísticas -->
+    <div *ngIf="!cargando" class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon primary">
+          <fa-icon [icon]="faBook" style="color: white; font-size: 24px;"></fa-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.totalPreguntas.toLocaleString() }}</div>
+          <div class="stat-label">Preguntas en el Banco</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon success">
+          <fa-icon [icon]="faChartBar" style="color: white; font-size: 24px;"></fa-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.totalResultados.toLocaleString() }}</div>
+          <div class="stat-label">Resultados Registrados</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acciones rápidas -->
+    <div *ngIf="!cargando" class="actions-section">
+      <div class="actions-card">
+        <h2>
+          <fa-icon [icon]="faCog" style="margin-right: 8px;"></fa-icon>
+          Acciones Rápidas
+        </h2>
+        
+        <div class="actions-grid">
+          <a routerLink="/banco-preguntas" class="action-item">
+            <fa-icon [icon]="faBook" class="action-icon"></fa-icon>
+            <span>Gestionar Banco de Preguntas</span>
+          </a>
+          
+          <a routerLink="/generar-examenes" class="action-item">
+            <fa-icon [icon]="faFileAlt" class="action-icon"></fa-icon>
+            <span>Generar Nuevos Exámenes</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

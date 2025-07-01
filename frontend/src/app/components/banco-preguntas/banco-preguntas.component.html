@@ -1,0 +1,145 @@
+<!-- Sidebar -->
+<div class="app-layout">
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">
+        <fa-icon [icon]="faSchool" style="color: #4d44b5; font-size: 24px;"></fa-icon>
+      </div>
+      <h1>UNMSM</h1>
+    </div>
+    
+    <nav class="nav-menu">
+      <a routerLink="/dashboard" class="nav-item">
+        <fa-icon [icon]="faChartBar" class="nav-icon"></fa-icon>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/generar-examenes" class="nav-item">
+        <fa-icon [icon]="faFileAlt" class="nav-icon"></fa-icon>
+        <span>Generar Exámenes</span>
+      </a>
+      <a routerLink="/banco-preguntas" class="nav-item active">
+        <fa-icon [icon]="faBook" class="nav-icon"></fa-icon>
+        <span>Banco de Preguntas</span>
+      </a>
+    </nav>
+    
+    <div class="system-info">
+      <h3>Sistema de Admisión Paralela</h3>
+      <p>Universidad Nacional Mayor de San Marcos</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="page-header">
+      <div class="header-content">
+        <div>
+          <h1>Gestión del Banco de Preguntas</h1>
+          <p>Administre las preguntas disponibles para la generación de exámenes</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon primary">
+          <fa-icon [icon]="faBook" style="color: white; font-size: 24px;"></fa-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas.totalPreguntas }}</div>
+          <div class="stat-label">Total de Preguntas</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon success">
+          <fa-icon [icon]="faQuestionCircle" style="color: white; font-size: 24px;"></fa-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas.cursosDisponibles }}</div>
+          <div class="stat-label">Cursos Disponibles</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <div class="filters-card">
+      <h3>Filtros y Búsqueda</h3>
+      
+      <div class="filters-row">
+        <div class="search-group">
+          <fa-icon [icon]="faSearch" class="search-icon"></fa-icon>
+          <input 
+            type="text" 
+            placeholder="Buscar preguntas..."
+            [(ngModel)]="filtros.busqueda"
+            (input)="onFiltroChange()"
+            class="search-input">
+        </div>
+        
+        <select 
+          [(ngModel)]="filtros.curso"
+          (change)="onFiltroChange()"
+          class="filter-select">
+          <option value="">Todos los cursos</option>
+          <option *ngFor="let curso of cursosDisponibles" [value]="curso">{{ curso }}</option>
+        </select>
+        
+        <button class="btn-clear-filters" (click)="limpiarFiltros()">
+          Limpiar Filtros
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabla de Preguntas -->
+    <div class="questions-table-card">
+      <div class="table-header">
+        <div class="header-cell">Enunciado</div>
+        <div class="header-cell">Curso</div>
+      </div>
+      
+      <div *ngIf="cargando" class="loading-row">
+        <div class="loading-spinner"></div>
+        <p>Cargando preguntas...</p>
+      </div>
+      
+      <div *ngFor="let pregunta of preguntasFiltradas" class="table-row">
+        <div class="table-cell question-cell">
+          <p class="question-text">{{ pregunta.enunciado }}</p>
+        </div>
+        
+        <div class="table-cell">
+          <span class="tag tag-curso">{{ pregunta.curso }}</span>
+        </div>
+      </div>
+      
+      <div *ngIf="preguntasFiltradas.length === 0 && !cargando" class="empty-state">
+        <fa-icon [icon]="faBook" style="font-size: 120px; opacity: 0.3; color: #a098ae;"></fa-icon>
+        <h3>No se encontraron preguntas</h3>
+        <p>No hay preguntas que coincidan con los filtros seleccionados</p>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="additional-actions">
+      <div class="upload-section">
+        <label for="archivo-preguntas" class="btn-upload">
+          <fa-icon [icon]="faUpload"></fa-icon>
+          Subir Archivo CSV
+        </label>
+        <input 
+          id="archivo-preguntas"
+          type="file" 
+          accept=".csv"
+          (change)="subirArchivo($event)"
+          style="display: none;">
+      </div>
+      
+      <button class="btn-clear-bank" (click)="limpiarBanco()">
+        <fa-icon [icon]="faTrash"></fa-icon>
+        Limpiar Banco
+      </button>
+    </div>
+  </div>
+</div>

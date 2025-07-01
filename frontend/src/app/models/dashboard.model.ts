@@ -1,0 +1,1 @@
+// Este archivo ya no es necesario - las interfaces están en los servicios correspondientes

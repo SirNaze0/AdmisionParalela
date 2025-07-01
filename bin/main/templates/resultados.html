@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px;
+            font-size: 12px;
+        }
+        h1 { 
+            color: navy; 
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        .header-info {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 11px;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px;
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left;
+            font-size: 10px;
+        }
+        th { 
+            background-color: #f2f2f2; 
+            font-weight: bold;
+            text-align: center;
+        }
+        .position { text-align: center; font-weight: bold; }
+        .nota { text-align: center; font-weight: bold; }
+        .dni { text-align: center; }
+        .area { text-align: center; }
+        .area-A { background-color: #e8f5e8; }
+        .area-B { background-color: #e8f0ff; }
+        .area-C { background-color: #fff8e8; }
+        .area-D { background-color: #ffe8f0; }
+        .area-E { background-color: #f0e8ff; }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>RESULTADOS DEL EXAMEN DE ADMISIÓN</h1>
+    
+    <div class="header-info">
+        <p><strong>Total de postulantes:</strong> <span th:text="${totalResultados}">0</span></p>
+        <p><strong>Fecha de generación:</strong> <span th:text="${#dates.format(fechaGeneracion, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 12:00:00</span></p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 5%;">Pos.</th>
+                <th style="width: 8%;">DNI</th>
+                <th style="width: 20%;">Apellidos</th>
+                <th style="width: 20%;">Nombres</th>
+                <th style="width: 25%;">Carrera</th>
+                <th style="width: 7%;">Área</th>
+                <th style="width: 8%;">Nota</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="resultado : ${resultados}" 
+                th:class="'area-' + ${resultado.area}">
+                <td class="position" th:text="${resultado.posicion}">1</td>
+                <td class="dni" th:text="${resultado.dni}">12345678</td>
+                <td th:text="${resultado.apellidos}">Apellidos</td>
+                <td th:text="${resultado.nombres}">Nombres</td>
+                <td th:text="${resultado.carrera}">Carrera</td>
+                <td class="area" th:text="${resultado.area}">A</td>
+                <td class="nota" th:text="${resultado.nota}">20</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Sistema de Admisión Paralela - Universidad Nacional Mayor de San Marcos</p>
+        <p>Áreas: A=Ingeniería, B=Medicina, C=Derecho, D=Psicología, E=Administración</p>
+    </div>
+</body>
+</html>

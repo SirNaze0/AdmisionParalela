@@ -1,0 +1,113 @@
+<!-- Sidebar -->
+<div class="app-layout">
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">
+        <fa-icon [icon]="faSchool" style="color: #4d44b5; font-size: 24px;"></fa-icon>
+      </div>
+      <h1>UNMSM</h1>
+    </div>
+    
+    <nav class="nav-menu">
+      <a routerLink="/dashboard" class="nav-item">
+        <fa-icon [icon]="faChartBar" class="nav-icon"></fa-icon>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/generar-examenes" class="nav-item active">
+        <fa-icon [icon]="faFileAlt" class="nav-icon"></fa-icon>
+        <span>Generar Exámenes</span>
+      </a>
+      <a routerLink="/banco-preguntas" class="nav-item">
+        <fa-icon [icon]="faBook" class="nav-icon"></fa-icon>
+        <span>Banco de Preguntas</span>
+      </a>
+    </nav>
+    
+    <div class="system-info">
+      <h3>Sistema de Admisión Paralela</h3>
+      <p>Universidad Nacional Mayor de San Marcos</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="page-header">
+      <h1>Generar Nuevos Exámenes</h1>
+      <p>Configure la cantidad de exámenes para generar</p>
+    </div>
+
+    <!-- Información del banco -->
+    <div class="info-card">
+      <div class="card-header">
+        <div class="card-icon primary">
+          <fa-icon [icon]="faBook" style="color: white; font-size: 20px;"></fa-icon>
+        </div>
+        <h3>Estado del Banco de Preguntas</h3>
+      </div>
+      
+      <div class="info-content">
+        <div class="info-stat">
+          <span class="info-number">{{ totalPreguntas }}</span>
+          <span class="info-label">Preguntas disponibles</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configuración -->
+    <div class="config-card">
+      <div class="card-header">
+        <div class="card-icon basic">
+          <fa-icon [icon]="faCog" style="color: white; font-size: 20px;"></fa-icon>
+        </div>
+        <h3>Configuración</h3>
+      </div>
+      
+      <div class="form-group">
+        <label>Cantidad de exámenes a generar:</label>
+        <input 
+          type="number" 
+          [(ngModel)]="cantidadExamenes"
+          placeholder="Ej: 50"
+          min="1"
+          max="1000"
+          class="form-input">
+        <small class="help-text">Ingrese el número de exámenes que desea generar</small>
+      </div>
+    </div>
+
+    <!-- Botón de Generar -->
+    <div class="action-section">
+      <button 
+        class="btn-generate" 
+        [class.disabled]="!puedeGenerar"
+        [disabled]="!puedeGenerar"
+        (click)="iniciarGeneracion()">
+        <fa-icon [icon]="faCog" style="margin-right: 8px;"></fa-icon>
+        <span *ngIf="!cargando">Iniciar Generación de Exámenes</span>
+        <span *ngIf="cargando">Generando Exámenes...</span>
+      </button>
+
+      <button 
+        *ngIf="resultado"
+        class="btn-secondary"
+        (click)="limpiarExamenes()">
+        <fa-icon [icon]="faTrash" style="margin-right: 8px;"></fa-icon>
+        Limpiar Exámenes
+      </button>
+    </div>
+
+    <!-- Resultado -->
+    <div *ngIf="resultado" class="resultado-card">
+      <h3>✅ Exámenes Generados Exitosamente</h3>
+      <div class="resultado-content">
+        <pre>{{ resultado | json }}</pre>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="cargando" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p>Generando exámenes, por favor espere...</p>
+    </div>
+  </div>
+</div>
