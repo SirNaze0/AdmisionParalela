@@ -30,4 +30,19 @@ public class PdfService {
             renderer.createPDF(os);
         }
     }
+    
+    public void generarPdfResultados(Map<String, Object> datos, String outputPath) throws Exception {
+        // 1. Renderiza HTML con Thymeleaf usando la plantilla de resultados
+        Context context = new Context();
+        context.setVariables(datos);
+        String html = templateEngine.process("resultados", context);
+
+        // 2. Convierte HTML a PDF con Flying Saucer
+        try (OutputStream os = new FileOutputStream(outputPath)) {
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocumentFromString(html);
+            renderer.layout();
+            renderer.createPDF(os);
+        }
+    }
 }
