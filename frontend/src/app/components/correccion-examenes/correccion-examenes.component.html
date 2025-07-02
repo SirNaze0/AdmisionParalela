@@ -1,140 +1,150 @@
 <app-layout>
   <div class="page-header">
-    <h1>Corrección de Exámenes</h1>
-    <p>Procese las fichas ópticas para corregir los exámenes automáticamente</p>
-  </div>
-
-  <!-- Información del proceso -->
-  <div class="info-card">
-    <div class="card-header">
-      <div class="card-icon primary">
-        <fa-icon [icon]="faClipboardCheck" style="color: white; font-size: 20px;"></fa-icon>
-        </div>
-        <h3>Proceso de Corrección</h3>
-      </div>
-      
-      <div class="info-content">
-        <p>Para corregir los exámenes, suba un archivo CSV con las fichas ópticas que contenga:</p>
-        <ul>
-          <li><strong>codigoPostulante:</strong> ID del postulante (usar IDs generados automáticamente, normalmente 1000+)</li>
-          <li><strong>idExamen:</strong> ID del examen a corregir (usar IDs generados automáticamente, normalmente 1000+)</li>
-          <li><strong>respuestas:</strong> Respuestas marcadas (ej: "ABCDE", use "*" para respuestas en blanco)</li>
-        </ul>
-        <div class="warning-box">
-          <fa-icon [icon]="faExclamationTriangle" style="color: #ff9800; margin-right: 8px;"></fa-icon>
-          <strong>Importante:</strong> Los IDs deben corresponder a postulantes y exámenes existentes en la base de datos. 
-          Genere primero los postulantes y exámenes antes de corregir.
-        </div>
-        <p><em>Ejemplo: 1000,1000,ABB*E (postulante 1000, examen 1000, respuestas A,B,B,vacía,E)</em></p>
+    <div class="header-content">
+      <div>
+        <h1>Corrección de Exámenes</h1>
+        <p>Procese las fichas ópticas para corregir los exámenes automáticamente</p>
       </div>
     </div>
+  </div>
 
-    <!-- Cargar Fichas Ópticas -->
-    <div class="upload-card">
-      <div class="card-header">
-        <div class="card-icon success">
-          <fa-icon [icon]="faFileUpload" style="color: white; font-size: 20px;"></fa-icon>
-        </div>
-        <h3>Cargar Fichas Ópticas</h3>
+  <!-- Loading Overlay -->
+  <app-loading-spinner 
+    *ngIf="cargando"
+    [overlay]="true"
+    message="Procesando fichas ópticas, por favor espere...">
+  </app-loading-spinner>
+
+  <!-- Información del proceso -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3 class="card-title">
+        <fa-icon [icon]="faClipboardCheck" class="me-2"></fa-icon>
+        Proceso de Corrección
+      </h3>
+    </div>
+    
+    <div class="card-body">
+      <p>Para corregir los exámenes, suba un archivo CSV con las fichas ópticas que contenga:</p>
+      <ul class="list-group list-group-flush mb-3">
+        <li class="list-group-item"><strong>codigoPostulante:</strong> ID del postulante (usar IDs generados automáticamente, normalmente 1000+)</li>
+        <li class="list-group-item"><strong>idExamen:</strong> ID del examen a corregir (usar IDs generados automáticamente, normalmente 1000+)</li>
+        <li class="list-group-item"><strong>respuestas:</strong> Respuestas marcadas (ej: "ABCDE", use "*" para respuestas en blanco)</li>
+      </ul>
+      
+      <div class="alert alert-warning">
+        <fa-icon [icon]="faExclamationTriangle" class="me-2"></fa-icon>
+        <strong>Importante:</strong> Los IDs deben corresponder a postulantes y exámenes existentes en la base de datos. 
+        Genere primero los postulantes y exámenes antes de corregir.
       </div>
       
-      <div class="upload-content">
-        <div class="upload-area" [class.has-file]="archivoSeleccionado">
-          <input 
-            type="file" 
-            id="archivo-fichas" 
-            accept=".csv"
-            (change)="onArchivoSeleccionado($event)"
-            class="file-input">
-          
-          <label for="archivo-fichas" class="upload-label">
-            <fa-icon [icon]="faFileUpload" class="upload-icon"></fa-icon>
-            <span *ngIf="!archivoSeleccionado" class="upload-text">
-              <strong>Haga clic para seleccionar</strong> o arrastre el archivo CSV aquí
-            </span>
-            <span *ngIf="archivoSeleccionado" class="upload-text">
-              <strong>{{ archivoSeleccionado.name }}</strong> seleccionado
-            </span>
-          </label>
-        </div>
+      <p class="text-muted"><em>Ejemplo: 1000,1000,ABB*E (postulante 1000, examen 1000, respuestas A,B,B,vacía,E)</em></p>
+    </div>
+  </div>
+
+  <!-- Cargar Fichas Ópticas -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3 class="card-title">
+        <fa-icon [icon]="faFileUpload" class="me-2"></fa-icon>
+        Cargar Fichas Ópticas
+      </h3>
+    </div>
+    
+    <div class="card-body">
+      <div class="upload-area" [class.has-file]="archivoSeleccionado">
+        <input 
+          type="file" 
+          id="archivo-fichas" 
+          accept=".csv"
+          (change)="onArchivoSeleccionado($event)"
+          class="form-control-file d-none">
         
+        <label for="archivo-fichas" class="upload-label d-flex flex-column align-items-center justify-content-center p-4 border border-2 border-dashed rounded">
+          <fa-icon [icon]="faFileUpload" class="upload-icon mb-2" style="font-size: 3rem; color: var(--primary-color);"></fa-icon>
+          <span *ngIf="!archivoSeleccionado" class="text-center">
+            <strong>Haga clic para seleccionar</strong> o arrastre el archivo CSV aquí
+          </span>
+          <span *ngIf="archivoSeleccionado" class="text-center text-success">
+            <strong>{{ archivoSeleccionado.name }}</strong> seleccionado
+          </span>
+        </label>
+      </div>
+      
+      <div class="text-center mt-3">
         <button 
-          class="btn-procesar" 
-          [class.disabled]="!archivoSeleccionado || cargando"
+          class="btn btn-primary btn-lg" 
           [disabled]="!archivoSeleccionado || cargando"
           (click)="procesarFichasOpticas()">
-          <fa-icon *ngIf="cargando" [icon]="faSpinner" [spin]="true" style="margin-right: 8px;"></fa-icon>
-          <fa-icon *ngIf="!cargando" [icon]="faClipboardCheck" style="margin-right: 8px;"></fa-icon>
-          <span *ngIf="!cargando">Procesar Corrección</span>
-          <span *ngIf="cargando">Procesando...</span>
+          <fa-icon *ngIf="cargando" [icon]="faSpinner" [spin]="true" class="me-2"></fa-icon>
+          <fa-icon *ngIf="!cargando" [icon]="faClipboardCheck" class="me-2"></fa-icon>
+          {{ cargando ? 'Procesando...' : 'Procesar Corrección' }}
         </button>
       </div>
     </div>
+  </div>
 
-    <!-- Resultado -->
-    <div *ngIf="resultado" class="resultado-card" [class.tiene-errores]="resultado.errores > 0">
-      <div class="resultado-header">
+  <!-- Resultado -->
+  <div *ngIf="resultado" class="card" [class]="resultado.errores > 0 ? 'border-warning' : 'border-success'">
+    <div class="card-header" [class]="resultado.errores === 0 ? 'bg-success text-white' : 'bg-warning text-dark'">
+      <h3 class="card-title mb-0">
         <fa-icon 
           [icon]="resultado.errores === 0 ? faCheckCircle : faExclamationTriangle" 
-          [style.color]="resultado.errores === 0 ? '#4caf50' : '#ff9800'"
-          style="font-size: 32px; margin-right: 16px;">
+          class="me-2">
         </fa-icon>
-        <div>
-          <h3>{{ resultado.errores === 0 ? 'Corrección Completada' : 'Corrección Completada con Errores' }}</h3>
-          <p>{{ resultado.mensaje }}</p>
-        </div>
-      </div>
+        {{ resultado.errores === 0 ? 'Corrección Completada' : 'Corrección Completada con Errores' }}
+      </h3>
+    </div>
+    
+    <div class="card-body">
+      <p class="card-text">{{ resultado.mensaje }}</p>
       
-      <div class="resultado-stats">
+      <div class="stats-content mb-3">
         <div class="stat-item">
-          <div class="stat-number success">{{ resultado.examenesCorregidos }}</div>
+          <div class="stat-number text-success">{{ resultado.examenesCorregidos }}</div>
           <div class="stat-label">Exámenes Corregidos</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number error">{{ resultado.errores }}</div>
+          <div class="stat-number text-danger">{{ resultado.errores }}</div>
           <div class="stat-label">Errores</div>
         </div>
       </div>
       
       <!-- Información adicional si hay errores -->
-      <div *ngIf="resultado.errores > 0" class="error-help">
-        <h4>¿Por qué no se corrigieron exámenes?</h4>
-        <ul>
+      <div *ngIf="resultado.errores > 0" class="alert alert-info">
+        <h5 class="alert-heading">¿Por qué no se corrigieron exámenes?</h5>
+        <ul class="mb-0">
           <li><strong>Postulantes no encontrados:</strong> Los IDs de postulantes en el CSV no existen en la base de datos</li>
           <li><strong>Exámenes no encontrados:</strong> Los IDs de exámenes en el CSV no existen en la base de datos</li>
           <li><strong>Formato incorrecto:</strong> El archivo CSV no tiene el formato esperado</li>
         </ul>
-        <p><strong>Solución:</strong> Asegúrese de cargar postulantes y generar exámenes antes de intentar corregir. Use los IDs que se generan automáticamente (usualmente 1000+).</p>
+        <hr>
+        <p class="mb-0"><strong>Solución:</strong> Asegúrese de cargar postulantes y generar exámenes antes de intentar corregir. Use los IDs que se generan automáticamente (usualmente 1000+).</p>
       </div>
       
-      <div class="resultado-actions">
-        <button class="btn-secondary" (click)="limpiarResultado()">
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <button class="btn btn-outline-secondary" (click)="limpiarResultado()">
+          <fa-icon [icon]="faRedo" class="me-1"></fa-icon>
           Procesar Otro Archivo
         </button>
         
-        <a *ngIf="resultado.examenesCorregidos > 0" routerLink="/resultados" class="btn-primary">
-          <fa-icon [icon]="faChartBar" style="margin-right: 8px;"></fa-icon>
+        <a *ngIf="resultado.examenesCorregidos > 0" routerLink="/resultados" class="btn btn-primary">
+          <fa-icon [icon]="faChartBar" class="me-1"></fa-icon>
           Ver Resultados Detallados
         </a>
         
         <!-- En caso de errores sugerir cargar postulantes y generar exámenes -->
         <ng-container *ngIf="resultado.errores > 0">
-          <a routerLink="/cargar-postulantes" class="btn-primary">
-            <fa-icon [icon]="faSchool" style="margin-right: 8px;"></fa-icon>
+          <a routerLink="/cargar-postulantes" class="btn btn-info">
+            <fa-icon [icon]="faSchool" class="me-1"></fa-icon>
             Cargar Postulantes
           </a>
-          <a routerLink="/generar-examenes" class="btn-primary">
-            <fa-icon [icon]="faBook" style="margin-right: 8px;"></fa-icon>
+          <a routerLink="/generar-examenes" class="btn btn-info">
+            <fa-icon [icon]="faBook" class="me-1"></fa-icon>
             Generar Exámenes
           </a>
         </ng-container>
       </div>
     </div>
-
-    <!-- Loading -->
-    <div *ngIf="cargando" class="loading-overlay">
-      <div class="loading-spinner"></div>
-      <p>Procesando fichas ópticas, por favor espere...</p>
-      <small>Este proceso puede tomar varios minutos dependiendo del número de exámenes</small>
-    </div>
+  </div>
 </app-layout>

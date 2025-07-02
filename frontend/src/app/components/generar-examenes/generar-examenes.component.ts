@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GeneradorService, ExamenGeneradoDTO } from '../../services/generador.service';
 import { BancoPreguntaService } from '../../services/banco-pregunta.service';
 import { EstadoGlobalService, EstadoExamenes } from '../../services/estado-global.service';
+import { ModalService } from '../../services/modal.service';
 import { Subscription } from 'rxjs';
 
 // Font Awesome Icons
@@ -40,7 +41,8 @@ export class GenerarExamenesComponent implements OnInit, OnDestroy {
   constructor(
     private readonly generadorService: GeneradorService,
     private readonly bancoPreguntaService: BancoPreguntaService,
-    private readonly estadoGlobalService: EstadoGlobalService
+    private readonly estadoGlobalService: EstadoGlobalService,
+    private readonly modalService: ModalService
   ) { }
 
   ngOnInit(): void {
@@ -113,7 +115,10 @@ export class GenerarExamenesComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         console.error('Error al generar exámenes:', error);
         this.cargando = false;
-        alert('Error al generar exámenes: ' + (error.error?.mensaje ?? error.message));
+        this.modalService.showError(
+          'Error al generar exámenes',
+          error.error?.mensaje ?? error.message
+        );
       }
     });
   }
@@ -144,11 +149,21 @@ export class GenerarExamenesComponent implements OnInit, OnDestroy {
     });
   }
 
-  limpiarExamenes(): void {
-    if (confirm('¿Está seguro de que desea limpiar todos los exámenes generados?')) {
+  async limpiarExamenes(): Promise<void> {
+    const confirmado = await this.modalService.showConfirm(
+      'Confirmar limpieza de exámenes',
+      '¿Está seguro de que desea limpiar todos los exámenes generados? Esta acción no se puede deshacer.',
+      'Sí, limpiar',
+      'Cancelar'
+    );
+
+    if (confirmado) {
       this.generadorService.limpiarExamenes().subscribe({
         next: () => {
-          alert('Exámenes limpiados exitosamente');
+          this.modalService.showSuccess(
+            'Exámenes limpiados',
+            'Los exámenes han sido limpiados exitosamente'
+          );
           this.resultado = null;
           this.examenesDetalle = [];
           
@@ -157,17 +172,30 @@ export class GenerarExamenesComponent implements OnInit, OnDestroy {
         },
         error: (error: any) => {
           console.error('Error al limpiar exámenes:', error);
-          alert('Error al limpiar exámenes');
+          this.modalService.showError(
+            'Error al limpiar exámenes',
+            'No se pudieron limpiar los exámenes'
+          );
         }
       });
     }
   }
 
-  limpiarBaseDatosCompleta(): void {
-    if (confirm('¿Está seguro de que desea limpiar TODA la base de datos? Esto eliminará postulantes, exámenes, resultados y banco de preguntas.')) {
+  async limpiarBaseDatosCompleta(): Promise<void> {
+    const confirmado = await this.modalService.showConfirm(
+      'Confirmar limpieza completa',
+      '¿Está seguro de que desea limpiar TODA la base de datos? Esto eliminará postulantes, exámenes, resultados y banco de preguntas. Esta acción no se puede deshacer.',
+      'Sí, limpiar todo',
+      'Cancelar'
+    );
+
+    if (confirmado) {
       this.generadorService.limpiarBaseDatosCompleta().subscribe({
         next: () => {
-          alert('Base de datos completamente limpiada');
+          this.modalService.showSuccess(
+            'Base de datos limpiada',
+            'La base de datos ha sido completamente limpiada'
+          );
           this.resultado = null;
           this.examenesDetalle = [];
           
@@ -176,7 +204,10 @@ export class GenerarExamenesComponent implements OnInit, OnDestroy {
         },
         error: (error: any) => {
           console.error('Error al limpiar base de datos:', error);
-          alert('Error al limpiar base de datos');
+          this.modalService.showError(
+            'Error al limpiar base de datos',
+            'No se pudo limpiar la base de datos'
+          );
         }
       });
     }
@@ -197,14 +228,20 @@ export class GenerarExamenesComponent implements OnInit, OnDestroy {
       },
       error: (error: any) => {
         console.error('Error al descargar examen:', error);
-        alert('Error al descargar el examen: ' + (error.error?.mensaje ?? error.message));
+        this.modalService.showError(
+          'Error al descargar examen',
+          error.error?.mensaje ?? error.message
+        );
       }
     });
   }
 
   generarPlantillaFichasOpticas(): void {
     if (this.examenesDetalle.length === 0) {
-      alert('No hay exámenes generados. Primero genere los exámenes antes de crear la plantilla de fichas ópticas.');
+      this.modalService.showWarning(
+        'No hay exámenes generados',
+        'Primero genere los exámenes antes de crear la plantilla de fichas ópticas.'
+      );
       return;
     }
 
@@ -229,12 +266,18 @@ export class GenerarExamenesComponent implements OnInit, OnDestroy {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 
-    alert(`✅ Plantilla CSV generada exitosamente!\n\n📋 El archivo contiene ${this.examenesDetalle.length} registros con los IDs reales:\n\n• Postulantes: ${this.examenesDetalle.map(e => e.postulanteId).join(', ')}\n• Exámenes: ${this.examenesDetalle.map(e => e.examenId).join(', ')}\n\n📝 Edite las respuestas en el archivo descargado antes de usarlo en la corrección.`);
+    this.modalService.showSuccess(
+      'Plantilla CSV generada exitosamente',
+      `El archivo contiene ${this.examenesDetalle.length} registros con los IDs reales:\n\n• Postulantes: ${this.examenesDetalle.map(e => e.postulanteId).join(', ')}\n• Exámenes: ${this.examenesDetalle.map(e => e.examenId).join(', ')}\n\nEdite las respuestas en el archivo descargado antes de usarlo en la corrección.`
+    );
   }
 
   mostrarRelacionIds(): void {
     if (this.examenesDetalle.length === 0) {
-      alert('No hay exámenes generados para mostrar la relación de IDs.');
+      this.modalService.showWarning(
+        'No hay exámenes generados',
+        'No hay exámenes generados para mostrar la relación de IDs.'
+      );
       return;
     }
 
@@ -246,8 +289,11 @@ export class GenerarExamenesComponent implements OnInit, OnDestroy {
       mensaje += `${examen.postulanteId} → ${examen.examenId} | ${examen.nombresPostulante} ${examen.apellidosPostulante}\n`;
     });
     
-    mensaje += '\n💡 Use estos IDs exactos en su archivo CSV de fichas ópticas.';
+    mensaje += '\nUse estos IDs exactos en su archivo CSV de fichas ópticas.';
     
-    alert(mensaje);
+    this.modalService.showInfo(
+      'Relación de IDs para fichas ópticas',
+      mensaje
+    );
   }
 }

@@ -16,6 +16,11 @@ import { VerResultadosComponent } from './components/ver-resultados/ver-resultad
 import { CargarPostulantesComponent } from './components/cargar-postulantes/cargar-postulantes.component';
 import { LayoutComponent } from './shared/layout/layout.component';
 
+// Shared Components
+import { ModalComponent } from './shared/components/modal/modal.component';
+import { GlobalModalComponent } from './shared/components/global-modal/global-modal.component';
+import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loading-spinner.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -25,7 +30,11 @@ import { LayoutComponent } from './shared/layout/layout.component';
     CorreccionExamenesComponent,
     VerResultadosComponent,
     CargarPostulantesComponent,
-    LayoutComponent
+    LayoutComponent,
+    // Shared Components
+    ModalComponent,
+    GlobalModalComponent,
+    LoadingSpinnerComponent
   ],
   imports: [
     BrowserModule,

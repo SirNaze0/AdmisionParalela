@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
   selector: 'app-root',
   template: `
     <router-outlet></router-outlet>
+    <app-global-modal></app-global-modal>
   `,
   styleUrls: ['./app.component.css']
 })

@@ -1,7 +1,7 @@
 /* Ver Resultados Component Styles */
 
 .page-header {
-  margin-bottom: 32px;
+  margin-bottom: 48px;
 }
 
 .header-content {
@@ -14,13 +14,14 @@
   font-size: 36px;
   font-weight: bold;
   color: #303972;
-  margin: 0 0 8px 0;
+  margin: 0 0 16px 0;
 }
 
 .page-header p {
   font-size: 18px;
   color: #a098ae;
   margin: 0;
+  line-height: 1.6;
 }
 
 /* Cards */
@@ -141,7 +142,7 @@
   padding: 32px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
 .filter-group {
@@ -157,14 +158,16 @@
 }
 
 .filter-select {
-  height: 52px;
+  height: 64px;
   border: 2px solid #a098ae;
   border-radius: 20px;
-  padding: 0 16px;
-  font-size: 16px;
+  padding: 0 20px;
+  font-size: 18px;
   background: white;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
   cursor: pointer;
+  color: #303972;
+  box-sizing: border-box;
 }
 
 .filter-select:focus {
@@ -176,45 +179,82 @@
   display: flex;
   gap: 16px;
   justify-content: flex-end;
+  padding: 24px;
+  background: #f8f9fa;
+  border-radius: 20px;
+  border: 1px solid #e9ecef;
 }
 
 /* Buttons */
 .btn-clear,
 .btn-download {
-  padding: 16px 24px;
   border: none;
-  border-radius: 20px;
-  font-size: 16px;
+  border-radius: 40px;
+  font-size: 18px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
+  gap: 12px;
   transition: all 0.3s ease;
   text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  padding: 20px 32px;
 }
 
 .btn-clear {
-  background: #a098ae;
+  background: linear-gradient(135deg, #a098ae 0%, #8a7ea8 100%);
   color: white;
-  box-shadow: 0 10px 30px rgba(160, 152, 174, 0.3);
+  box-shadow: 0 8px 25px rgba(160, 152, 174, 0.3);
+}
+
+.btn-clear::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-clear:hover::before {
+  left: 100%;
 }
 
 .btn-clear:hover {
   background: #8a7ea8;
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(160, 152, 174, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(160, 152, 174, 0.4);
 }
 
 .btn-download {
-  background: #4caf50;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
   color: white;
-  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+}
+
+.btn-download::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-download:hover:not(.disabled)::before {
+  left: 100%;
 }
 
 .btn-download:hover:not(.disabled) {
   background: #45a049;
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
 }
 
 .btn-download.disabled {
@@ -237,19 +277,19 @@
 }
 
 .results-table th {
-  background: #f3f4ff;
-  padding: 24px 16px;
+  background: linear-gradient(135deg, #4d44b5 0%, #6c5ce7 100%);
+  padding: 20px 16px;
   text-align: left;
   font-weight: 600;
-  color: #303972;
+  color: white;
   border-bottom: 2px solid #e0e0e0;
-  font-size: 16px;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .results-table td {
-  padding: 24px 16px;
+  padding: 18px 16px;
   border-bottom: 1px solid #e0e0e0;
   vertical-align: middle;
   font-size: 14px;
@@ -257,7 +297,10 @@
 }
 
 .table-row:hover {
-  background: #f3f4ff;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f3f4ff 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .position {

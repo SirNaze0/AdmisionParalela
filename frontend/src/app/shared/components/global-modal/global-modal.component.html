@@ -1,0 +1,14 @@
+<app-modal 
+  [isOpen]="modalState.isOpen"
+  [type]="modalState.config?.type || 'info'"
+  [title]="modalState.config?.title || ''"
+  [message]="modalState.config?.message || ''"
+  [confirmText]="modalState.config?.confirmText || 'Aceptar'"
+  [cancelText]="modalState.config?.cancelText || 'Cancelar'"
+  [showCancel]="modalState.config?.showCancel || false"
+  [autoClose]="modalState.config?.autoClose || false"
+  [autoCloseTime]="modalState.config?.autoCloseTime || 3000"
+  (confirm)="onConfirm()"
+  (cancel)="onCancel()"
+  (close)="onClose()">
+</app-modal>

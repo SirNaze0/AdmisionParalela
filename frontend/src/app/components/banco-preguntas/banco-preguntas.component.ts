@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BancoPreguntaService, BancoPreguntaDTO } from '../../services/banco-pregunta.service';
+import { ModalService } from '../../services/modal.service';
 
 // Font Awesome Icons
 import { faQuestionCircle, faChartBar, faBook, faSearch, faPlus, faEdit, faTrash, faUpload, faTimes, faEye, faSchool, faFileAlt, faClipboardCheck, faTable } from '@fortawesome/free-solid-svg-icons';
@@ -56,7 +57,10 @@ export class BancoPreguntasComponent implements OnInit {
     curso: ''
   };
 
-  constructor(private readonly bancoPreguntaService: BancoPreguntaService) { }
+  constructor(
+    private readonly bancoPreguntaService: BancoPreguntaService,
+    private readonly modalService: ModalService
+  ) { }
 
   ngOnInit(): void {
     this.cargarPreguntas();
@@ -75,7 +79,10 @@ export class BancoPreguntasComponent implements OnInit {
       error: (error: any) => {
         console.error('Error al cargar preguntas:', error);
         this.cargando = false;
-        alert('Error al cargar las preguntas. Verifique que el backend esté ejecutándose.');
+        this.modalService.showError(
+          'Error al cargar preguntas',
+          'No se pudieron cargar las preguntas. Verifique que el backend esté ejecutándose.'
+        );
       }
     });
   }
@@ -87,7 +94,7 @@ export class BancoPreguntasComponent implements OnInit {
         cursosSet.add(pregunta.curso);
       }
     });
-    this.cursosDisponibles = Array.from(cursosSet).sort();
+    this.cursosDisponibles = Array.from(cursosSet).sort((a, b) => a.localeCompare(b));
   }
 
   calcularEstadisticas(): void {
@@ -124,27 +131,46 @@ export class BancoPreguntasComponent implements OnInit {
     if (archivo) {
       this.bancoPreguntaService.subirArchivo(archivo).subscribe({
         next: (response: any) => {
-          alert(`Archivo cargado exitosamente: ${response.mensaje}. Registros exitosos: ${response.registrosExitosos}, Errores: ${response.registrosErroneos}`);
+          this.modalService.showSuccess(
+            'Archivo cargado exitosamente',
+            `${response.mensaje}. Registros exitosos: ${response.registrosExitosos}, Errores: ${response.registrosErroneos}`
+          );
           this.cargarPreguntas(); // Recargar datos del backend
         },
         error: (error: any) => {
           console.error('Error al cargar archivo:', error);
-          alert('Error al cargar archivo: ' + (error.error?.mensaje || error.message));
+          this.modalService.showError(
+            'Error al cargar archivo',
+            error.error?.mensaje ?? error.message
+          );
         }
       });
     }
   }
 
-  limpiarBanco(): void {
-    if (confirm('¿Está seguro de que desea limpiar todo el banco de preguntas?')) {
+  async limpiarBanco(): Promise<void> {
+    const confirmado = await this.modalService.showConfirm(
+      'Confirmar limpieza',
+      '¿Está seguro de que desea limpiar todo el banco de preguntas? Esta acción no se puede deshacer.',
+      'Sí, limpiar',
+      'Cancelar'
+    );
+
+    if (confirmado) {
       this.bancoPreguntaService.limpiarBanco().subscribe({
         next: () => {
-          alert('Banco de preguntas limpiado exitosamente');
+          this.modalService.showSuccess(
+            'Banco limpiado',
+            'El banco de preguntas ha sido limpiado exitosamente'
+          );
           this.cargarPreguntas(); // Recargar desde backend
         },
         error: (error: any) => {
           console.error('Error al limpiar banco:', error);
-          alert('Error al limpiar banco de preguntas');
+          this.modalService.showError(
+            'Error al limpiar banco',
+            'No se pudo limpiar el banco de preguntas'
+          );
         }
       });
     }
@@ -171,13 +197,19 @@ export class BancoPreguntasComponent implements OnInit {
 
   guardarPregunta(): void {
     if (!this.preguntaFormulario.enunciado || !this.preguntaFormulario.curso) {
-      alert('Por favor complete todos los campos');
+      this.modalService.showWarning(
+        'Campos incompletos',
+        'Por favor complete todos los campos antes de guardar'
+      );
       return;
     }
 
     // Aquí implementarías la lógica para guardar la pregunta
     console.log('Guardando pregunta:', this.preguntaFormulario);
-    alert('Funcionalidad de agregar pregunta individual en desarrollo');
+    this.modalService.showInfo(
+      'Funcionalidad en desarrollo',
+      'La funcionalidad de agregar pregunta individual está en desarrollo'
+    );
     this.cerrarModal();
   }
 }

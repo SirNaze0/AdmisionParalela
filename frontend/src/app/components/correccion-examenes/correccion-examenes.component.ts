@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { CorreccionService, ResultadoCorreccionDTO } from '../../services/correccion.service';
+import { ModalService } from '../../services/modal.service';
 
 // Font Awesome Icons
-import { faFileUpload, faChartBar, faBook, faClipboardCheck, faSchool, faFileAlt, faSpinner, faCheckCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faFileUpload, faChartBar, faBook, faClipboardCheck, faSchool, faFileAlt, faSpinner, faCheckCircle, faExclamationTriangle, faRedo } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-correccion-examenes',
@@ -21,12 +22,16 @@ export class CorreccionExamenesComponent {
   faSpinner = faSpinner;
   faCheckCircle = faCheckCircle;
   faExclamationTriangle = faExclamationTriangle;
+  faRedo = faRedo;
 
   cargando = false;
   resultado: ResultadoCorreccionDTO | null = null;
   archivoSeleccionado: File | null = null;
 
-  constructor(private readonly correccionService: CorreccionService) { }
+  constructor(
+    private readonly correccionService: CorreccionService,
+    private readonly modalService: ModalService
+  ) { }
 
   onArchivoSeleccionado(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -37,7 +42,10 @@ export class CorreccionExamenesComponent {
 
   procesarFichasOpticas(): void {
     if (!this.archivoSeleccionado) {
-      alert('Por favor seleccione un archivo CSV');
+      this.modalService.showWarning(
+        'Archivo requerido',
+        'Por favor seleccione un archivo CSV antes de continuar'
+      );
       return;
     }
 
@@ -69,7 +77,10 @@ export class CorreccionExamenesComponent {
                        '• Asegúrese de que los IDs de postulantes y exámenes existan\n' +
                        '• Confirme que haya generado exámenes previamente';
         
-        alert(mensajeError);
+        this.modalService.showError(
+          'Error en la corrección',
+          mensajeError
+        );
       }
     });
   }

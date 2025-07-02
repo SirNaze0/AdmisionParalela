@@ -1,0 +1,48 @@
+<div class="modal-backdrop" 
+     [class.show]="isOpen" 
+     (click)="onBackdropClick($event)"
+     *ngIf="isOpen">
+  
+  <div class="modal-container" [class.show]="isOpen">
+    <div class="modal-header">
+      <div class="modal-icon" [ngClass]="getModalIconClass()">
+        <fa-icon [icon]="getModalIcon()"></fa-icon>
+      </div>
+      <button class="modal-close" 
+              (click)="onClose()" 
+              (keydown.escape)="onClose()"
+              type="button"
+              aria-label="Cerrar modal">
+        <fa-icon [icon]="faTimes"></fa-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <h2 class="modal-title" *ngIf="title">{{ title }}</h2>
+      <p class="modal-message" *ngIf="message">{{ message }}</p>
+      <ng-content></ng-content>
+    </div>
+
+    <div class="modal-footer" *ngIf="type === 'confirm' || showCancel">
+      <button class="btn btn-secondary" 
+              (click)="onCancel()" 
+              type="button"
+              *ngIf="showCancel || type === 'confirm'">
+        {{ cancelText }}
+      </button>
+      <button class="btn btn-primary" 
+              (click)="onConfirm()" 
+              type="button">
+        {{ confirmText }}
+      </button>
+    </div>
+
+    <div class="modal-footer" *ngIf="type !== 'confirm' && !showCancel">
+      <button class="btn btn-primary" 
+              (click)="onConfirm()" 
+              type="button">
+        {{ confirmText }}
+      </button>
+    </div>
+  </div>
+</div>

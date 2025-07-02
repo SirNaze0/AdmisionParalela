@@ -5,166 +5,206 @@
         <h1>Gestión del Banco de Preguntas</h1>
         <p>Administre las preguntas disponibles para la generación de exámenes</p>
       </div>
-      <button class="btn-add-question" (click)="abrirModalAgregarPregunta()">
+      <button class="btn btn-primary" (click)="abrirModalAgregarPregunta()">
         <fa-icon [icon]="faPlus"></fa-icon>
         Agregar Pregunta
       </button>
     </div>
   </div>
 
-    <!-- Estadísticas -->
-    <div class="stats-grid">
-      <div class="stat-card">
+  <!-- Loading Overlay -->
+  <app-loading-spinner 
+    *ngIf="cargando"
+    [overlay]="true"
+    message="Cargando preguntas...">
+  </app-loading-spinner>
+
+  <!-- Estadísticas -->
+  <div class="stats-grid">
+    <div class="card">
+      <div class="stat-content">
         <div class="stat-icon primary">
-          <fa-icon [icon]="faBook" style="color: white; font-size: 24px;"></fa-icon>
+          <fa-icon [icon]="faBook"></fa-icon>
         </div>
-        <div class="stat-content">
+        <div class="stat-info">
           <div class="stat-number">{{ estadisticas.totalPreguntas }}</div>
           <div class="stat-label">Total de Preguntas</div>
         </div>
       </div>
-      
-      <div class="stat-card">
+    </div>
+    
+    <div class="card">
+      <div class="stat-content">
         <div class="stat-icon success">
-          <fa-icon [icon]="faQuestionCircle" style="color: white; font-size: 24px;"></fa-icon>
+          <fa-icon [icon]="faQuestionCircle"></fa-icon>
         </div>
-        <div class="stat-content">
+        <div class="stat-info">
           <div class="stat-number">{{ estadisticas.cursosDisponibles }}</div>
           <div class="stat-label">Cursos Disponibles</div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Filtros y Búsqueda -->
-    <div class="filters-card">
-      <h3>Filtros y Búsqueda</h3>
-      
-      <div class="filters-row">
+  <!-- Filtros y Búsqueda -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Filtros y Búsqueda</h3>
+    </div>
+    
+    <div class="filters-row">
+      <div class="form-group flex-1">
+        <label class="form-label" for="buscar-preguntas">Buscar preguntas</label>
         <div class="search-group">
           <fa-icon [icon]="faSearch" class="search-icon"></fa-icon>
           <input 
+            id="buscar-preguntas"
             type="text" 
             placeholder="Buscar preguntas..."
             [(ngModel)]="filtros.busqueda"
             (input)="onFiltroChange()"
-            class="search-input">
+            class="form-control search-input">
         </div>
-        
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="filtro-curso">Filtrar por curso</label>
         <select 
+          id="filtro-curso"
           [(ngModel)]="filtros.curso"
           (change)="onFiltroChange()"
-          class="filter-select">
+          class="form-control">
           <option value="">Todos los cursos</option>
           <option *ngFor="let curso of cursosDisponibles" [value]="curso">{{ curso }}</option>
         </select>
-        
-        <button class="btn-clear-filters" (click)="limpiarFiltros()">
+      </div>
+      
+      <div class="form-group">
+        <div style="height: 20px;"></div>
+        <button class="btn btn-secondary" (click)="limpiarFiltros()">
+          <fa-icon [icon]="faTimes"></fa-icon>
           Limpiar Filtros
         </button>
       </div>
     </div>
+  </div>
 
-    <!-- Tabla de Preguntas -->
-    <div class="questions-table-card">
-      <div class="table-header">
-        <div class="header-cell">Enunciado</div>
-        <div class="header-cell">Curso</div>
+  <!-- Tabla de Preguntas -->
+  <div class="table-container">
+    <table class="table" *ngIf="!cargando">
+      <thead>
+        <tr>
+          <th>Enunciado</th>
+          <th>Curso</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pregunta of preguntasFiltradas">
+          <td class="question-cell">
+            <p class="question-text">{{ pregunta.enunciado }}</p>
+          </td>
+          <td>
+            <span class="badge badge-info">{{ pregunta.curso }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="preguntasFiltradas.length === 0 && !cargando" class="empty-state">
+      <fa-icon [icon]="faBook" class="empty-icon"></fa-icon>
+      <h3>No se encontraron preguntas</h3>
+      <p>No hay preguntas que coincidan con los filtros seleccionados</p>
+    </div>
+  </div>
+
+  <!-- Acciones -->
+  <div class="actions-section">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Acciones adicionales</h3>
       </div>
       
-      <div *ngIf="cargando" class="loading-row">
-        <div class="loading-spinner"></div>
-        <p>Cargando preguntas...</p>
-      </div>
-      
-      <div *ngFor="let pregunta of preguntasFiltradas" class="table-row">
-        <div class="table-cell question-cell">
-          <p class="question-text">{{ pregunta.enunciado }}</p>
+      <div class="actions-grid">
+        <div class="action-group">
+          <label for="archivo-preguntas" class="btn btn-primary">
+            <fa-icon [icon]="faUpload"></fa-icon>
+            Subir Archivo CSV
+          </label>
+          <input 
+            id="archivo-preguntas"
+            type="file" 
+            accept=".csv"
+            (change)="subirArchivo($event)"
+            style="display: none;">
+          <p class="action-description">Cargar preguntas desde un archivo CSV</p>
         </div>
         
-        <div class="table-cell">
-          <span class="tag tag-curso">{{ pregunta.curso }}</span>
+        <div class="action-group">
+          <button class="btn btn-danger" (click)="limpiarBanco()">
+            <fa-icon [icon]="faTrash"></fa-icon>
+            Limpiar Banco
+          </button>
+          <p class="action-description">Eliminar todas las preguntas del banco</p>
         </div>
       </div>
-      
-      <div *ngIf="preguntasFiltradas.length === 0 && !cargando" class="empty-state">
-        <fa-icon [icon]="faBook" style="font-size: 120px; opacity: 0.3; color: #a098ae;"></fa-icon>
-        <h3>No se encontraron preguntas</h3>
-        <p>No hay preguntas que coincidan con los filtros seleccionados</p>
-      </div>
     </div>
-
-    <!-- Acciones -->
-    <div class="additional-actions">
-      <div class="upload-section">
-        <label for="archivo-preguntas" class="btn-upload">
-          <fa-icon [icon]="faUpload"></fa-icon>
-          Subir Archivo CSV
-        </label>
-        <input 
-          id="archivo-preguntas"
-          type="file" 
-          accept=".csv"
-          (change)="subirArchivo($event)"
-          style="display: none;">
-      </div>
-      
-      <button class="btn-clear-bank" (click)="limpiarBanco()">
-        <fa-icon [icon]="faTrash"></fa-icon>
-        Limpiar Banco
-      </button>
-    </div>
+  </div>
 
   <!-- Modal para agregar/editar pregunta -->
-  <div *ngIf="mostrarModal" class="modal-overlay" (click)="cerrarModal()" (keydown)="cerrarModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+  <div *ngIf="mostrarModal" class="modal-backdrop show" (click)="cerrarModal()" (keydown.escape)="cerrarModal()">
+    <div class="modal-container show" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>{{ editandoPregunta ? 'Editar Pregunta' : 'Agregar Nueva Pregunta' }}</h2>
-        <button class="btn-close" (click)="cerrarModal()">×</button>
+        <h2 class="modal-title">{{ editandoPregunta ? 'Editar Pregunta' : 'Agregar Nueva Pregunta' }}</h2>
+        <button class="modal-close" (click)="cerrarModal()" type="button">
+          <fa-icon [icon]="faTimes"></fa-icon>
+        </button>
       </div>
       
-      <form class="question-form" (ngSubmit)="guardarPregunta()">
+      <form class="modal-body" (ngSubmit)="guardarPregunta()">
         <div class="form-group">
-          <label for="enunciado">Enunciado de la pregunta:</label>
+          <label class="form-label" for="enunciado">Enunciado de la pregunta:</label>
           <textarea 
             id="enunciado"
             [(ngModel)]="preguntaFormulario.enunciado" 
             name="enunciado"
-            class="form-textarea"
+            class="form-control"
             rows="3"
             placeholder="Ingrese el enunciado de la pregunta..."
             required></textarea>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="curso">Curso:</label>
-            <select 
-              id="curso"
-              [(ngModel)]="preguntaFormulario.curso" 
-              name="curso"
-              class="form-select"
-              required>
-              <option value="">Seleccione un curso</option>
-              <option value="Matemática">Matemática</option>
-              <option value="Comunicación">Comunicación</option>
-              <option value="Historia">Historia</option>
-              <option value="Geografía">Geografía</option>
-              <option value="Economía">Economía</option>
-              <option value="Filosofía">Filosofía</option>
-              <option value="Física">Física</option>
-              <option value="Química">Química</option>
-              <option value="Biología">Biología</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="btn-cancel" (click)="cerrarModal()">Cancelar</button>
-          <button type="submit" class="btn-save" [disabled]="!preguntaFormulario.enunciado || !preguntaFormulario.curso">
-            {{ editandoPregunta ? 'Actualizar' : 'Agregar' }}
-          </button>
+        <div class="form-group">
+          <label class="form-label" for="curso">Curso:</label>
+          <select 
+            id="curso"
+            [(ngModel)]="preguntaFormulario.curso" 
+            name="curso"
+            class="form-control"
+            required>
+            <option value="">Seleccione un curso</option>
+            <option value="Matemática">Matemática</option>
+            <option value="Comunicación">Comunicación</option>
+            <option value="Historia">Historia</option>
+            <option value="Geografía">Geografía</option>
+            <option value="Economía">Economía</option>
+            <option value="Filosofía">Filosofía</option>
+            <option value="Física">Física</option>
+            <option value="Química">Química</option>
+            <option value="Biología">Biología</option>
+          </select>
         </div>
       </form>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+        <button 
+          type="submit" 
+          class="btn btn-primary" 
+          (click)="guardarPregunta()"
+          [disabled]="!preguntaFormulario.enunciado || !preguntaFormulario.curso">
+          {{ editandoPregunta ? 'Actualizar' : 'Agregar' }}
+        </button>
+      </div>
     </div>
   </div>
 </app-layout>

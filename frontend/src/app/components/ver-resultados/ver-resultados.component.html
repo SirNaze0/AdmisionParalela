@@ -5,16 +5,32 @@
         <h1>Resultados de Exámenes</h1>
         <p>Consulte y descargue los resultados de los exámenes corregidos</p>
       </div>
+      <button 
+        class="btn btn-primary" 
+        (click)="descargarPDF()"
+        [disabled]="!resultados || descargandoPDF"
+        *ngIf="resultados && !cargando">
+        <fa-icon [icon]="faDownload" *ngIf="!descargandoPDF"></fa-icon>
+        <app-loading-spinner *ngIf="descargandoPDF" [size]="'small'"></app-loading-spinner>
+        {{ descargandoPDF ? 'Generando...' : 'Descargar PDF' }}
+      </button>
     </div>
   </div>
 
+  <!-- Loading Overlay -->
+  <app-loading-spinner 
+    *ngIf="cargando"
+    [overlay]="true"
+    message="Cargando resultados...">
+  </app-loading-spinner>
+
   <!-- Estadísticas -->
-  <div *ngIf="resultados && !cargando" class="stats-card">
+  <div *ngIf="resultados && !cargando" class="card mb-4">
     <div class="card-header">
-      <div class="card-icon primary">
-        <fa-icon [icon]="faChartBar" style="color: white; font-size: 20px;"></fa-icon>
-      </div>
-      <h3>Resumen de Resultados</h3>
+      <h3 class="card-title">
+        <fa-icon [icon]="faChartBar" class="me-2"></fa-icon>
+        Resumen de Resultados
+      </h3>
     </div>
     
     <div class="stats-content">
@@ -24,64 +40,56 @@
       </div>
       
       <div class="stat-item" *ngIf="areaSeleccionada">
-        <div class="stat-number area-badge" [class]="'area-' + areaSeleccionada.toLowerCase()">{{ areaSeleccionada }}</div>
+        <div class="stat-number">
+          <span class="badge badge-info">{{ areaSeleccionada }}</span>
+        </div>
         <div class="stat-label">Área Seleccionada</div>
       </div>
     </div>
   </div>
 
   <!-- Filtros -->
-  <div class="filters-card">
+  <div *ngIf="resultados && !cargando" class="card mb-4">
     <div class="card-header">
-      <div class="card-icon success">
-        <fa-icon [icon]="faFilter" style="color: white; font-size: 20px;"></fa-icon>
-      </div>
-      <h3>Filtros</h3>
+      <h3 class="card-title">
+        <fa-icon [icon]="faFilter" class="me-2"></fa-icon>
+        Filtros
+      </h3>
     </div>
     
-    <div class="filters-content">
+    <div class="card-body">
       <div class="filter-group">
-        <label for="area-select">Filtrar por área:</label>
+        <label for="area-select" class="form-label">Filtrar por área:</label>
         <select 
           id="area-select"
+          class="form-select"
           [(ngModel)]="areaSeleccionada"
-          (change)="onAreaChange()"
-          class="filter-select">
+          (change)="onAreaChange()">
           <option value="">Todas las áreas</option>
           <option *ngFor="let area of areas" [value]="area">Área {{ area }}</option>
         </select>
       </div>
       
-      <div class="filter-actions">
-        <button class="btn-clear" (click)="limpiarFiltros()">
+      <div class="filter-actions mt-3">
+        <button class="btn btn-outline-secondary me-2" (click)="limpiarFiltros()">
+          <fa-icon [icon]="faUndo" class="me-1"></fa-icon>
           Limpiar Filtros
-        </button>
-        
-        <button 
-          class="btn-download" 
-          [class.disabled]="descargandoPDF"
-          [disabled]="descargandoPDF"
-          (click)="descargarPDF()">
-          <fa-icon *ngIf="descargandoPDF" [icon]="faSpinner" [spin]="true" style="margin-right: 8px;"></fa-icon>
-          <fa-icon *ngIf="!descargandoPDF" [icon]="faDownload" style="margin-right: 8px;"></fa-icon>
-          <span *ngIf="!descargandoPDF">Descargar PDF</span>
-          <span *ngIf="descargandoPDF">Generando...</span>
         </button>
       </div>
     </div>
   </div>
 
   <!-- Tabla de Resultados -->
-  <div class="results-table-card" *ngIf="!cargando">
+  <div *ngIf="!cargando" class="card">
     <div class="card-header">
-      <div class="card-icon primary">
-        <fa-icon [icon]="faTable" style="color: white; font-size: 20px;"></fa-icon>
-      </div>
-      <h3>Tabla de Resultados</h3>
+      <h3 class="card-title">
+        <fa-icon [icon]="faTable" class="me-2"></fa-icon>
+        Tabla de Resultados
+      </h3>
     </div>
     
     <div *ngIf="resultados && resultados.resultados && resultados.resultados.length > 0" class="table-container">
-      <table class="results-table">
+      <table class="table">
         <thead>
           <tr>
             <th>Posición</th>
@@ -91,16 +99,21 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let resultado of resultados.resultados; index as i" class="table-row">
+          <tr *ngFor="let resultado of resultados.resultados; index as i">
             <td class="position">{{ i + 1 }}</td>
             <td class="postulante">{{ resultado.postulanteId || resultado.codigoPostulante || 'N/A' }}</td>
             <td class="area">
-              <span class="area-badge" [class]="'area-' + (resultado.area || 'unknown').toLowerCase()">
+              <span class="badge badge-info">
                 {{ resultado.area || 'N/A' }}
               </span>
             </td>
-            <td class="nota" [class.nota-alta]="resultado.nota >= 80" [class.nota-media]="resultado.nota >= 60 && resultado.nota < 80" [class.nota-baja]="resultado.nota < 60">
-              {{ resultado.nota }}
+            <td class="nota">
+              <span 
+                class="badge"
+                [class]="resultado.nota >= 80 ? 'badge-success' : 
+                         resultado.nota >= 60 ? 'badge-warning' : 'badge-danger'">
+                {{ resultado.nota }}
+              </span>
             </td>
           </tr>
         </tbody>
@@ -108,20 +121,15 @@
     </div>
     
     <div *ngIf="resultados && (!resultados.resultados || resultados.resultados.length === 0)" class="empty-state">
-      <fa-icon [icon]="faTable" style="font-size: 120px; opacity: 0.3; color: #a098ae;"></fa-icon>
-      <h3>No hay resultados</h3>
+      <fa-icon [icon]="faTable" class="empty-icon"></fa-icon>
+      <h4>No hay resultados</h4>
       <p>No se encontraron resultados {{ areaSeleccionada ? 'para el área ' + areaSeleccionada : '' }}</p>
-      <p><em>Asegúrese de haber procesado fichas ópticas previamente</em></p>
+      <p class="text-muted">Asegúrese de haber procesado fichas ópticas previamente</p>
     </div>
     
-    <div *ngIf="resultados?.mensaje" class="message-info">
-      <p>{{ resultados?.mensaje || '' }}</p>
+    <div *ngIf="resultados?.mensaje" class="alert alert-info">
+      <fa-icon [icon]="faInfoCircle" class="me-2"></fa-icon>
+      {{ resultados?.mensaje }}
     </div>
-  </div>
-
-  <!-- Loading -->
-  <div *ngIf="cargando" class="loading-section">
-    <div class="loading-spinner"></div>
-    <p>Cargando resultados...</p>
   </div>
 </app-layout>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PostulanteService, ResultadoCargaDTO, PostulanteDTO } from '../../services/postulante.service';
-import { faSchool, faChartBar, faFileAlt, faBook, faClipboardCheck, faFileUpload, faSpinner, faCheckCircle, faExclamationTriangle, faTrash, faUsers, faEye, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { ModalService } from '../../services/modal.service';
+import { faSchool, faChartBar, faFileAlt, faBook, faClipboardCheck, faFileUpload, faSpinner, faCheckCircle, faExclamationTriangle, faTrash, faUsers, faEye, faDownload, faEyeSlash, faFileDownload, faInfoCircle, faRedo, faFilter, faUser, faIdCard } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-cargar-postulantes',
@@ -20,15 +21,31 @@ export class CargarPostulantesComponent implements OnInit {
   faExclamationTriangle = faExclamationTriangle;
   faTrash = faTrash;
   faUsers = faUsers;
+  faEye = faEye;
+  faEyeSlash = faEyeSlash;
+  faFileDownload = faFileDownload;
+  faInfoCircle = faInfoCircle;
+  faRedo = faRedo;
+  faFilter = faFilter;
+  faUser = faUser;
+  faIdCard = faIdCard;
 
   // Estado del componente
   archivoSeleccionado: File | null = null;
   cargando = false;
   resultado: ResultadoCargaDTO | null = null;
   postulantes: PostulanteDTO[] = [];
+  postulantesFiltrados: PostulanteDTO[] = [];
   mostrandoPostulantes = false;
 
-  constructor(private readonly postulanteService: PostulanteService) { }
+  // Filtros
+  filtroAreaSeleccionada = '';
+  areasDisponibles: string[] = [];
+
+  constructor(
+    private readonly postulanteService: PostulanteService,
+    private readonly modalService: ModalService
+  ) { }
 
   ngOnInit(): void {
     // Cargar postulantes existentes al inicializar
@@ -39,14 +56,39 @@ export class CargarPostulantesComponent implements OnInit {
     this.postulanteService.listarPostulantes().subscribe({
       next: (postulantes: PostulanteDTO[]) => {
         this.postulantes = postulantes;
+        this.actualizarAreasDisponibles();
+        this.aplicarFiltros();
         this.mostrandoPostulantes = postulantes.length > 0;
       },
       error: (error: any) => {
         console.error('Error al cargar lista de postulantes:', error);
         this.postulantes = [];
+        this.postulantesFiltrados = [];
+        this.areasDisponibles = [];
         this.mostrandoPostulantes = false;
       }
     });
+  }
+
+  actualizarAreasDisponibles(): void {
+    const areas = new Set(this.postulantes.map(p => p.area));
+    this.areasDisponibles = Array.from(areas).sort((a, b) => a.localeCompare(b));
+  }
+
+  aplicarFiltros(): void {
+    let filtrados = [...this.postulantes];
+
+    // Filtrar por área si está seleccionada
+    if (this.filtroAreaSeleccionada) {
+      filtrados = filtrados.filter(p => p.area === this.filtroAreaSeleccionada);
+    }
+
+    this.postulantesFiltrados = filtrados;
+  }
+
+  limpiarFiltros(): void {
+    this.filtroAreaSeleccionada = '';
+    this.aplicarFiltros();
   }
 
   onArchivoSeleccionado(event: any): void {
@@ -59,7 +101,10 @@ export class CargarPostulantesComponent implements OnInit {
 
   cargarPostulantes(): void {
     if (!this.archivoSeleccionado) {
-      alert('Por favor seleccione un archivo CSV');
+      this.modalService.showWarning(
+        'Archivo requerido',
+        'Por favor seleccione un archivo CSV antes de continuar'
+      );
       return;
     }
 
@@ -94,8 +139,15 @@ export class CargarPostulantesComponent implements OnInit {
     });
   }
 
-  limpiarPostulantes(): void {
-    if (!confirm('¿Está seguro de que desea eliminar TODOS los postulantes? Esta acción no se puede deshacer.')) {
+  async limpiarPostulantes(): Promise<void> {
+    const confirmado = await this.modalService.showConfirm(
+      'Confirmar eliminación',
+      '¿Está seguro de que desea eliminar TODOS los postulantes? Esta acción no se puede deshacer.',
+      'Sí, eliminar todo',
+      'Cancelar'
+    );
+
+    if (!confirmado) {
       return;
     }
 
@@ -103,14 +155,20 @@ export class CargarPostulantesComponent implements OnInit {
 
     this.postulanteService.limpiarPostulantes().subscribe({
       next: () => {
-        alert('Todos los postulantes han sido eliminados correctamente');
+        this.modalService.showSuccess(
+          'Postulantes eliminados',
+          'Todos los postulantes han sido eliminados correctamente'
+        );
         this.cargando = false;
         this.resultado = null;
         this.cargarListaPostulantes(); // Recargar lista vacía
       },
       error: (error: any) => {
         console.error('Error al limpiar postulantes:', error);
-        alert('Error al limpiar postulantes: ' + (error.error?.mensaje ?? error.message));
+        this.modalService.showError(
+          'Error al limpiar postulantes',
+          error.error?.mensaje ?? error.message
+        );
         this.cargando = false;
       }
     });
@@ -127,7 +185,10 @@ export class CargarPostulantesComponent implements OnInit {
 
   generarCsvFichasOpticas(): void {
     if (this.postulantes.length === 0) {
-      alert('No hay postulantes cargados para generar el CSV');
+      this.modalService.showWarning(
+        'No hay postulantes',
+        'No hay postulantes cargados para generar el CSV'
+      );
       return;
     }
 

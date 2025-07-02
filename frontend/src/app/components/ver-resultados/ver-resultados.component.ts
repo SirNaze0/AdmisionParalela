@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ResultadosService, TablaResultadosDTO } from '../../services/resultados.service';
+import { ModalService } from '../../services/modal.service';
 
 // Font Awesome Icons
-import { faTable, faChartBar, faBook, faClipboardCheck, faSchool, faFileAlt, faDownload, faFilter, faSpinner, faFileExcel } from '@fortawesome/free-solid-svg-icons';
+import { faTable, faChartBar, faBook, faClipboardCheck, faSchool, faFileAlt, faDownload, faFilter, faSpinner, faFileExcel, faInfoCircle, faUndo } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-ver-resultados',
@@ -22,6 +23,8 @@ export class VerResultadosComponent implements OnInit {
   faFilter = faFilter;
   faSpinner = faSpinner;
   faFileExcel = faFileExcel;
+  faInfoCircle = faInfoCircle;
+  faUndo = faUndo;
 
   cargando = false;
   descargandoPDF = false;
@@ -29,7 +32,10 @@ export class VerResultadosComponent implements OnInit {
   areaSeleccionada = '';
   areas = ['A', 'B', 'C', 'D', 'E'];
 
-  constructor(private readonly resultadosService: ResultadosService) { }
+  constructor(
+    private readonly resultadosService: ResultadosService,
+    private readonly modalService: ModalService
+  ) { }
 
   ngOnInit(): void {
     this.cargarResultados();
@@ -48,7 +54,10 @@ export class VerResultadosComponent implements OnInit {
       error: (error: any) => {
         console.error('Error al cargar resultados:', error);
         this.cargando = false;
-        alert('Error al cargar los resultados: ' + (error.error?.mensaje ?? error.message));
+        this.modalService.showError(
+          'Error al cargar resultados',
+          error.error?.mensaje ?? error.message
+        );
       }
     });
   }
@@ -78,7 +87,10 @@ export class VerResultadosComponent implements OnInit {
       error: (error: any) => {
         console.error('Error al descargar PDF:', error);
         this.descargandoPDF = false;
-        alert('Error al descargar el PDF: ' + (error.error?.mensaje ?? error.message));
+        this.modalService.showError(
+          'Error al descargar PDF',
+          error.error?.mensaje ?? error.message
+        );
       }
     });
   }
