@@ -35,8 +35,17 @@ public class GeneradorParalelo{
 
     public String[] generar(int cant) throws IOException {
         List<BancoPregunta> bancoPreguntas = bancoPreguntaRepository.findAll();
-        long cantidad = cant;
+        List<Postulante> postulantes = postulanteRepository.findAll();
+        
+        // Validar que hay suficientes postulantes
+        if (postulantes.size() < cant) {
+            throw new IllegalArgumentException(
+                "No hay suficientes postulantes cargados. Se necesitan " + cant + 
+                " pero solo hay " + postulantes.size() + ". Debe cargar más postulantes primero."
+            );
+        }
 
+        long cantidad = cant;
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Future<ResultadoExamen>> resultados = new ArrayList<>();
 
@@ -45,7 +54,7 @@ public class GeneradorParalelo{
             List<BancoPregunta> copia = bancoPreguntas.stream()
                     .map(BancoPregunta::clonar)
                     .collect(Collectors.toList());
-            long postulanteId = i + 1;
+            long postulanteId = postulantes.get(i).getPostulanteid(); // Usar ID real del postulante
             ExamenParalelo tarea = new ExamenParalelo(
                     copia, nombre, pdfService, persistenciaExamenService, postulanteId
             );

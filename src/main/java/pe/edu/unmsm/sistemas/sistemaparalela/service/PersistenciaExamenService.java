@@ -50,6 +50,18 @@ public class PersistenciaExamenService {
         entityManager.createQuery("DELETE FROM Pregunta").executeUpdate();
         entityManager.createQuery("DELETE FROM Examen").executeUpdate();
     }
+    
+    @Transactional
+    public void limpiarBaseDatosCompleta() {
+        // Limpiar en orden correcto para evitar problemas de FK
+        entityManager.createQuery("DELETE FROM Respuesta").executeUpdate();
+        entityManager.createQuery("DELETE FROM Pregunta").executeUpdate();
+        entityManager.createQuery("DELETE FROM Examen").executeUpdate();
+        entityManager.createQuery("DELETE FROM Resultado").executeUpdate();
+        entityManager.createQuery("DELETE FROM Postulante").executeUpdate();
+        entityManager.createQuery("DELETE FROM BancoPregunta").executeUpdate();
+        System.out.println("Base de datos completamente limpiada");
+    }
 
     @Transactional
     public void guardarResultado(Long postulanteId, int nota) {

@@ -3,6 +3,7 @@ package pe.edu.unmsm.sistemas.sistemaparalela.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import pe.edu.unmsm.sistemas.sistemaparalela.dto.PostulanteDTO;
 import pe.edu.unmsm.sistemas.sistemaparalela.dto.ResultadoCargaDTO;
 import pe.edu.unmsm.sistemas.sistemaparalela.entity.Postulante;
 import pe.edu.unmsm.sistemas.sistemaparalela.repository.PostulanteRepository;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 @Service
 public class PostulanteService {
     @Autowired
@@ -58,5 +60,24 @@ public class PostulanteService {
     public void limpiarPostulantes() {
         postulanteRepository.deleteAll();
         sequenceResetService.reiniciarSecuenciaPostulante(1000);
+    }
+    
+    public long contarPostulantes() {
+        return postulanteRepository.count();
+    }
+    
+    public List<PostulanteDTO> obtenerTodosLosPostulantes() {
+        List<Postulante> postulantes = postulanteRepository.findAll();
+        
+        return postulantes.stream().map(p -> {
+            PostulanteDTO dto = new PostulanteDTO();
+            dto.setPostulanteId(p.getPostulanteid());
+            dto.setNombres(p.getNombres());
+            dto.setApellidos(p.getApellidos());
+            dto.setDni(p.getDni());
+            dto.setCarrera(p.getCarrera());
+            dto.setArea(p.getArea());
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

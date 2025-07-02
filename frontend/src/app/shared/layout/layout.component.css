@@ -1,0 +1,160 @@
+/* Layout Principal */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f3f4ff;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 345px;
+  background-color: #4d44b5;
+  padding: 32px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  margin-bottom: 48px;
+}
+
+.logo-icon {
+  width: 64px;
+  height: 64px;
+  background-color: #f3f4ff;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+}
+
+.logo h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  color: white;
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 18px 24px;
+  border-radius: 40px 0 0 40px;
+  text-decoration: none;
+  color: #c1bbeb;
+  font-size: 18px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+  background-color: #f3f4ff;
+  color: #4d44b5;
+}
+
+.nav-item span {
+  flex: 1;
+}
+
+.status-indicator {
+  margin-left: 8px;
+  font-size: 16px;
+  animation: pulse 2s infinite;
+}
+
+.status-indicator.success {
+  color: #4caf50;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 24px;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.system-info {
+  margin-top: 32px;
+}
+
+.system-info h3 {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 4px 0;
+}
+
+.system-info p {
+  font-size: 12px;
+  opacity: 0.75;
+  margin: 0;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 42px 48px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    padding: 16px;
+  }
+  
+  .nav-menu {
+    display: flex;
+    overflow-x: auto;
+    gap: 4px;
+  }
+  
+  .nav-item {
+    white-space: nowrap;
+    border-radius: 20px;
+    margin-bottom: 0;
+  }
+  
+  .system-info {
+    display: none;
+  }
+  
+  .main-content {
+    padding: 24px;
+  }
+}

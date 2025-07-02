@@ -1,44 +1,16 @@
-<!-- Sidebar -->
-<div class="app-layout">
-  <div class="sidebar">
-    <div class="logo">
-      <div class="logo-icon">
-        <fa-icon [icon]="faSchool" style="color: #4d44b5; font-size: 24px;"></fa-icon>
+<app-layout>
+  <div class="page-header">
+    <div class="header-content">
+      <div>
+        <h1>Gestión del Banco de Preguntas</h1>
+        <p>Administre las preguntas disponibles para la generación de exámenes</p>
       </div>
-      <h1>UNMSM</h1>
-    </div>
-    
-    <nav class="nav-menu">
-      <a routerLink="/dashboard" class="nav-item">
-        <fa-icon [icon]="faChartBar" class="nav-icon"></fa-icon>
-        <span>Dashboard</span>
-      </a>
-      <a routerLink="/generar-examenes" class="nav-item">
-        <fa-icon [icon]="faFileAlt" class="nav-icon"></fa-icon>
-        <span>Generar Exámenes</span>
-      </a>
-      <a routerLink="/banco-preguntas" class="nav-item active">
-        <fa-icon [icon]="faBook" class="nav-icon"></fa-icon>
-        <span>Banco de Preguntas</span>
-      </a>
-    </nav>
-    
-    <div class="system-info">
-      <h3>Sistema de Admisión Paralela</h3>
-      <p>Universidad Nacional Mayor de San Marcos</p>
+      <button class="btn-add-question" (click)="abrirModalAgregarPregunta()">
+        <fa-icon [icon]="faPlus"></fa-icon>
+        Agregar Pregunta
+      </button>
     </div>
   </div>
-
-  <!-- Main Content -->
-  <div class="main-content">
-    <div class="page-header">
-      <div class="header-content">
-        <div>
-          <h1>Gestión del Banco de Preguntas</h1>
-          <p>Administre las preguntas disponibles para la generación de exámenes</p>
-        </div>
-      </div>
-    </div>
 
     <!-- Estadísticas -->
     <div class="stats-grid">
@@ -141,5 +113,58 @@
         Limpiar Banco
       </button>
     </div>
+
+  <!-- Modal para agregar/editar pregunta -->
+  <div *ngIf="mostrarModal" class="modal-overlay" (click)="cerrarModal()" (keydown)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ editandoPregunta ? 'Editar Pregunta' : 'Agregar Nueva Pregunta' }}</h2>
+        <button class="btn-close" (click)="cerrarModal()">×</button>
+      </div>
+      
+      <form class="question-form" (ngSubmit)="guardarPregunta()">
+        <div class="form-group">
+          <label for="enunciado">Enunciado de la pregunta:</label>
+          <textarea 
+            id="enunciado"
+            [(ngModel)]="preguntaFormulario.enunciado" 
+            name="enunciado"
+            class="form-textarea"
+            rows="3"
+            placeholder="Ingrese el enunciado de la pregunta..."
+            required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="curso">Curso:</label>
+            <select 
+              id="curso"
+              [(ngModel)]="preguntaFormulario.curso" 
+              name="curso"
+              class="form-select"
+              required>
+              <option value="">Seleccione un curso</option>
+              <option value="Matemática">Matemática</option>
+              <option value="Comunicación">Comunicación</option>
+              <option value="Historia">Historia</option>
+              <option value="Geografía">Geografía</option>
+              <option value="Economía">Economía</option>
+              <option value="Filosofía">Filosofía</option>
+              <option value="Física">Física</option>
+              <option value="Química">Química</option>
+              <option value="Biología">Biología</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn-save" [disabled]="!preguntaFormulario.enunciado || !preguntaFormulario.curso">
+            {{ editandoPregunta ? 'Actualizar' : 'Agregar' }}
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
+</app-layout>

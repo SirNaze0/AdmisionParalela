@@ -84,7 +84,10 @@ public class ExamenParalelo implements Callable<ResultadoExamen> {
                 .collect(Collectors.toList());
         // Validar que hay suficientes respuestas
         if (correctas.size() < 1 || incorrectas.size() < 4) {
-            throw new IllegalArgumentException(" La pregunta " + k + " no tiene suficientes respuestas válidas (mínimo 1 correcta y 4 incorrectas).");
+            System.out.println("ADVERTENCIA: La pregunta " + k + " (" + bancoPreguntas.get(k).getEnunciado() + ") no tiene suficientes respuestas válidas.");
+            System.out.println("  - Respuestas correctas: " + correctas.size());
+            System.out.println("  - Respuestas incorrectas: " + incorrectas.size());
+            throw new IllegalArgumentException("La pregunta " + k + " no tiene suficientes respuestas válidas (mínimo 1 correcta y 4 incorrectas).");
         }
         // Elegir 1 correcta al azar
         BancoRespuesta correcta = correctas.get((int)(Math.random() * correctas.size()));

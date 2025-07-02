@@ -4,12 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.unmsm.sistemas.sistemaparalela.dto.ResultadoCargaDTO;
+import pe.edu.unmsm.sistemas.sistemaparalela.dto.PostulanteDTO;
 import pe.edu.unmsm.sistemas.sistemaparalela.service.PostulanteService;
 
 import java.io.IOException;
@@ -20,6 +22,16 @@ import java.util.List;
 public class PostulanteController {
     @Autowired
     private PostulanteService postulanteService;
+    
+    // Endpoint: GET /api/Postulante/contar
+    // ENTRADA: No recibe parámetros.
+    // PROCESO: Cuenta cuántos postulantes están registrados en la base de datos.
+    // SALIDA: Un número entero con la cantidad de postulantes.
+    @GetMapping("/contar")
+    public ResponseEntity<Long> contarPostulantes() {
+        long cantidad = postulanteService.contarPostulantes();
+        return new ResponseEntity<>(cantidad, HttpStatus.OK);
+    }
     // Endpoint: POST /api/Postulante/guardar
     // ENTRADA:
     //   - Un archivo CSV enviado como formulario multipart (parametro "archivo").
@@ -77,5 +89,15 @@ public class PostulanteController {
     public ResponseEntity<Void> limpiarPostulantes() {
         postulanteService.limpiarPostulantes();
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+    // Endpoint: GET /api/Postulante/listar
+    // ENTRADA: No recibe parámetros.
+    // PROCESO: Obtiene todos los postulantes registrados con sus IDs asignados.
+    // SALIDA: Lista de PostulanteDTO con la información de cada postulante.
+    @GetMapping("/listar")
+    public ResponseEntity<List<PostulanteDTO>> listarPostulantes() {
+        List<PostulanteDTO> postulantes = postulanteService.obtenerTodosLosPostulantes();
+        return new ResponseEntity<>(postulantes, HttpStatus.OK);
     }
 }

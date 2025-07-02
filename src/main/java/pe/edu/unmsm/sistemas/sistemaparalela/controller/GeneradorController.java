@@ -6,10 +6,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.unmsm.sistemas.sistemaparalela.dto.ArchivoGeneradoDTO;
+import pe.edu.unmsm.sistemas.sistemaparalela.dto.ExamenGeneradoDTO;
+import pe.edu.unmsm.sistemas.sistemaparalela.dto.ResultadoGeneracionDetalladoDTO;
 import pe.edu.unmsm.sistemas.sistemaparalela.service.GeneradorService;
 import pe.edu.unmsm.sistemas.sistemaparalela.service.PersistenciaExamenService;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/generador")
@@ -57,5 +60,41 @@ public class GeneradorController {
         // Reiniciar tablas antes de ejecutar tod
         persistenciaExamenService.reiniciarTablas();
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+    // Endpoint: POST /api/generador/limpiar-todo
+    // ENTRADA: No recibe parámetros.
+    // PROCESO: Elimina TODOS los datos de la base de datos (postulantes, exámenes, resultados, banco de preguntas).
+    // SALIDA: Código HTTP 200 OK.
+    @PostMapping("/limpiar-todo")
+    public ResponseEntity<Void> limpiarBaseDatosCompleta() {
+        persistenciaExamenService.limpiarBaseDatosCompleta();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+    // Endpoint: GET /api/generador/examenes-detalle
+    // ENTRADA: No recibe parámetros.
+    // PROCESO: Obtiene todos los exámenes generados con información del postulante asignado.
+    // SALIDA: Lista de ExamenGeneradoDTO con detalles completos de cada examen.
+    @GetMapping("/examenes-detalle")
+    public ResponseEntity<List<ExamenGeneradoDTO>> obtenerExamenesDetalle() {
+        List<ExamenGeneradoDTO> examenes = generadorService.obtenerExamenesGenerados();
+        return new ResponseEntity<>(examenes, HttpStatus.OK);
+    }
+    
+    // Endpoint: GET /api/generador/descargar-examen/{examenId}
+    // ENTRADA: ID del examen como parámetro de la URL.
+    // PROCESO: Busca el archivo PDF del examen y lo devuelve para descarga.
+    // SALIDA: Archivo PDF del examen individual.
+    @GetMapping("/descargar-examen/{examenId}")
+    public ResponseEntity<org.springframework.core.io.Resource> descargarExamenIndividual(@PathVariable Long examenId) {
+        try {
+            org.springframework.core.io.Resource archivo = generadorService.obtenerArchivoPdfExamen(examenId);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + archivo.getFilename() + "\"")
+                    .body(archivo);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

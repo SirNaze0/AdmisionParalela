@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DashboardService, DashboardStats } from '../../services/dashboard.service';
 
 // Font Awesome Icons
-import { faChartBar, faUser, faUsers, faStar, faFileAlt, faSchool, faCog, faDownload, faBook } from '@fortawesome/free-solid-svg-icons';
+import { faChartBar, faUser, faUsers, faStar, faFileAlt, faSchool, faCog, faDownload, faBook, faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,6 +20,7 @@ export class DashboardComponent implements OnInit {
   faCog = faCog;
   faDownload = faDownload;
   faBook = faBook;
+  faClipboardCheck = faClipboardCheck;
 
   stats: DashboardStats = {
     totalPreguntas: 0,

@@ -27,6 +27,7 @@ public class BancoPreguntaService {
     }
     public ResultadoCargaDTO guardarBPBR(MultipartFile archivo) throws IOException {
         List<String> detalles = new ArrayList<>();
+        List<String> erroresDetalle = new ArrayList<>();
         int errores = 0;
         int registrosCorrectos = 0;
 
@@ -43,8 +44,20 @@ public class BancoPreguntaService {
                 try {
                     String[] partes = linea.split(",", -1); // mantener campos vacíos
 
-                    if (partes.length < 7)
-                        throw new IllegalArgumentException("Faltan columnas (esperado: 7)");
+                    if (partes.length != 8) {
+                        throw new IllegalArgumentException("Formato incorrecto. Esperado: 8 columnas (enunciado,curso,opcionA,opcionB,opcionC,opcionD,opcionE,respuestaCorrecta), encontrado: " + partes.length + ". Línea: " + linea);
+                    }
+
+                    // Validar que las partes no estén vacías
+                    if (partes[0].trim().isEmpty()) {
+                        throw new IllegalArgumentException("El enunciado no puede estar vacío");
+                    }
+                    if (partes[1].trim().isEmpty()) {
+                        throw new IllegalArgumentException("El curso no puede estar vacío");
+                    }
+                    if (partes[7].trim().isEmpty()) {
+                        throw new IllegalArgumentException("La respuesta correcta no puede estar vacía");
+                    }
 
                     // Crear pregunta
                     BancoPregunta pregunta = new BancoPregunta();
@@ -53,10 +66,15 @@ public class BancoPreguntaService {
                     List<BancoRespuesta> respuestas = new ArrayList<>();
 
                     // Letras correspondientes a las opciones
-                    String[] letras = {"A", "B", "C", "D"};
-                    String letraCorrecta = partes[6].trim().toUpperCase();
+                    String[] letras = {"A", "B", "C", "D", "E"};
+                    String letraCorrecta = partes[7].trim().toUpperCase();
 
-                    for (int i = 0; i < 4; i++) {
+                    // Validar que la respuesta correcta sea A, B, C, D o E
+                    if (!letraCorrecta.matches("[ABCDE]")) {
+                        throw new IllegalArgumentException("La respuesta correcta debe ser A, B, C, D o E");
+                    }
+
+                    for (int i = 0; i < 5; i++) {
                         BancoRespuesta respuesta = new BancoRespuesta();
                         respuesta.setTextorespuesta(partes[i + 2].trim());
                         respuesta.setEscorrecta(letras[i].equals(letraCorrecta));
@@ -71,8 +89,15 @@ public class BancoPreguntaService {
 
                 } catch (Exception e) {
                     errores++;
+                    erroresDetalle.add("Línea " + lineaNum + ": " + e.getMessage());
+                    System.out.println("Error en línea " + lineaNum + ": " + e.getMessage());
                 }
             }
+        }
+
+        // Si hay errores, incluir algunos en los detalles para diagnóstico
+        if (!erroresDetalle.isEmpty()) {
+            detalles.addAll(erroresDetalle.subList(0, Math.min(5, erroresDetalle.size())));
         }
 
         return new ResultadoCargaDTO("Carga finalizada", registrosCorrectos, errores, detalles);

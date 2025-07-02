@@ -12,6 +12,6 @@ public class FichaOptica {
     private Long fichaopticaid;
     private String respuestas;
     @ManyToOne
-    @JoinColumn(name = "postulante")
+    @JoinColumn(name = "postulanteid")
     private Postulante postulante;
 }

@@ -1,0 +1,195 @@
+<app-layout>
+  <div class="page-header">
+    <h1>Cargar Postulantes</h1>
+    <p>Suba el archivo CSV con la información de los postulantes del proceso de admisión</p>
+  </div>
+
+  <!-- Información del proceso -->
+  <div class="info-card">
+    <div class="card-header">
+      <div class="card-icon primary">
+        <fa-icon [icon]="faUsers" style="color: white; font-size: 20px;"></fa-icon>
+      </div>
+      <h3>Formato del Archivo</h3>
+    </div>
+    
+    <div class="info-content">
+      <p>El archivo CSV debe contener las siguientes columnas en orden:</p>
+      <ul>
+        <li><strong>nombres:</strong> Nombres del postulante</li>
+        <li><strong>apellidos:</strong> Apellidos del postulante</li>
+        <li><strong>dni:</strong> Documento Nacional de Identidad</li>
+        <li><strong>carrera:</strong> Carrera a la que postula</li>
+        <li><strong>area:</strong> Área académica (Letras, Ciencias, etc.)</li>
+      </ul>
+      <p><em>Ejemplo: Juan Carlos,Pérez López,12345678,Ingeniería de Sistemas,Ciencias</em></p>
+    </div>
+  </div>
+
+  <!-- Postulantes Cargados -->
+  <div *ngIf="postulantes.length > 0" class="info-card">
+    <div class="card-header">
+      <div class="card-icon success">
+        <fa-icon [icon]="faUsers" style="color: white; font-size: 20px;"></fa-icon>
+      </div>
+      <h3>Postulantes en el Sistema ({{ postulantes.length }})</h3>
+    </div>
+    
+    <div class="info-content">
+      <p>Los siguientes postulantes están registrados en el sistema con sus IDs asignados:</p>
+      
+      <div class="postulantes-actions">
+        <button 
+          class="btn-toggle"
+          (click)="toggleMostrarPostulantes()">
+          <fa-icon [icon]="mostrandoPostulantes ? faFileUpload : faUsers" style="margin-right: 8px;"></fa-icon>
+          {{ mostrandoPostulantes ? 'Ocultar Lista' : 'Ver Lista Completa' }}
+        </button>
+        
+        <button 
+          class="btn-download"
+          (click)="generarCsvFichasOpticas()">
+          <fa-icon [icon]="faFileUpload" style="margin-right: 8px;"></fa-icon>
+          Descargar Plantilla CSV Fichas Ópticas
+        </button>
+      </div>
+      
+      <div *ngIf="mostrandoPostulantes" class="postulantes-tabla">
+        <table class="tabla-postulantes">
+          <thead>
+            <tr>
+              <th>ID Sistema</th>
+              <th>Nombres</th>
+              <th>Apellidos</th>
+              <th>DNI</th>
+              <th>Carrera</th>
+              <th>Área</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let postulante of postulantes; trackBy: trackByPostulanteId">
+              <td class="id-column">{{ postulante.postulanteId }}</td>
+              <td>{{ postulante.nombres }}</td>
+              <td>{{ postulante.apellidos }}</td>
+              <td>{{ postulante.dni }}</td>
+              <td>{{ postulante.carrera }}</td>
+              <td>{{ postulante.area }}</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div class="tabla-info">
+          <p><strong>Importante:</strong> Use estos IDs para crear el CSV de fichas ópticas.</p>
+          <p><strong>Formato CSV:</strong> codigoPostulante,idExamen,respuestas</p>
+          <p><strong>Ejemplo:</strong> {{ postulantes[0]?.postulanteId }},{{ postulantes[0]?.postulanteId }},ABCDE</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cargar Postulantes -->
+  <div class="upload-card">
+    <div class="card-header">
+      <div class="card-icon success">
+        <fa-icon [icon]="faFileUpload" style="color: white; font-size: 20px;"></fa-icon>
+      </div>
+      <h3>Cargar Archivo de Postulantes</h3>
+    </div>
+    
+    <div class="upload-content">
+      <div class="upload-area" [class.has-file]="archivoSeleccionado">
+        <input 
+          type="file" 
+          id="archivo-postulantes" 
+          accept=".csv"
+          (change)="onArchivoSeleccionado($event)"
+          class="file-input">
+        
+        <label for="archivo-postulantes" class="upload-label">
+          <fa-icon [icon]="faFileUpload" class="upload-icon"></fa-icon>
+          <span *ngIf="!archivoSeleccionado" class="upload-text">
+            <strong>Haga clic para seleccionar</strong> o arrastre el archivo CSV aquí
+          </span>
+          <span *ngIf="archivoSeleccionado" class="upload-text">
+            <strong>{{ archivoSeleccionado.name }}</strong> seleccionado
+          </span>
+        </label>
+      </div>
+      
+      <div class="action-buttons">
+        <button 
+          class="btn-cargar" 
+          [class.disabled]="!archivoSeleccionado || cargando"
+          [disabled]="!archivoSeleccionado || cargando"
+          (click)="cargarPostulantes()">
+          <fa-icon *ngIf="cargando" [icon]="faSpinner" [spin]="true" style="margin-right: 8px;"></fa-icon>
+          <fa-icon *ngIf="!cargando" [icon]="faFileUpload" style="margin-right: 8px;"></fa-icon>
+          <span *ngIf="!cargando">Cargar Postulantes</span>
+          <span *ngIf="cargando">Cargando...</span>
+        </button>
+        
+        <button 
+          class="btn-limpiar" 
+          [disabled]="cargando"
+          (click)="limpiarPostulantes()">
+          <fa-icon [icon]="faTrash" style="margin-right: 8px;"></fa-icon>
+          Limpiar Todos los Postulantes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultado -->
+  <div *ngIf="resultado" class="resultado-card" [class.tiene-errores]="resultado.registrosErroneos > 0">
+    <div class="resultado-header">
+      <fa-icon 
+        [icon]="resultado.registrosErroneos === 0 ? faCheckCircle : faExclamationTriangle" 
+        [style.color]="resultado.registrosErroneos === 0 ? '#4caf50' : '#ff9800'"
+        style="font-size: 32px; margin-right: 16px;">
+      </fa-icon>
+      <div>
+        <h3>{{ resultado.registrosErroneos === 0 ? 'Carga Completada' : 'Carga Completada con Errores' }}</h3>
+        <p>{{ resultado.mensaje }}</p>
+      </div>
+    </div>
+    
+    <div class="resultado-stats">
+      <div class="stat-item">
+        <div class="stat-number success">{{ resultado.registrosExitosos }}</div>
+        <div class="stat-label">Postulantes Cargados</div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-number" [class.error]="resultado.registrosErroneos > 0">{{ resultado.registrosErroneos }}</div>
+        <div class="stat-label">Errores</div>
+      </div>
+    </div>
+    
+    <!-- Detalles si hay -->
+    <div *ngIf="resultado.detalles && resultado.detalles.length > 0" class="resultado-detalles">
+      <h4>Postulantes cargados exitosamente:</h4>
+      <ul>
+        <li *ngFor="let detalle of resultado.detalles.slice(0, 10)">{{ detalle }}</li>
+        <li *ngIf="resultado.detalles.length > 10">... y {{ resultado.detalles.length - 10 }} más</li>
+      </ul>
+    </div>
+    
+    <div class="resultado-actions">
+      <button class="btn-secondary" (click)="limpiarResultado()">
+        Cargar Otro Archivo
+      </button>
+      
+      <a routerLink="/generar-examenes" class="btn-primary">
+        <fa-icon [icon]="faFileAlt" style="margin-right: 8px;"></fa-icon>
+        Continuar: Generar Exámenes
+      </a>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Cargando postulantes, por favor espere...</p>
+    <small>Procesando archivo y guardando en la base de datos</small>
+  </div>
+</app-layout>

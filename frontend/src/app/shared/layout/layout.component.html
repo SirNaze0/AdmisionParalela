@@ -1,0 +1,64 @@
+<div class="app-layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">
+        <fa-icon [icon]="faSchool" style="color: #4d44b5; font-size: 24px;"></fa-icon>
+      </div>
+      <h1>UNMSM</h1>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="nav-menu">
+      <a 
+        routerLink="/dashboard" 
+        routerLinkActive="active" 
+        [routerLinkActiveOptions]="{exact:true}" 
+        class="nav-item">
+        <fa-icon [icon]="faChartBar" class="nav-icon"></fa-icon>
+        <span>Dashboard</span>
+      </a>
+      
+      <a routerLink="/generar-examenes" routerLinkActive="active" class="nav-item">
+        <fa-icon [icon]="faFileAlt" class="nav-icon"></fa-icon>
+        <span>Generar Exámenes</span>
+        <fa-icon 
+          *ngIf="hayExamenesGenerados" 
+          [icon]="faCheckCircle" 
+          class="status-indicator success"
+          title="Hay exámenes generados disponibles">
+        </fa-icon>
+      </a>
+      
+      <a routerLink="/cargar-postulantes" routerLinkActive="active" class="nav-item">
+        <fa-icon [icon]="faUsers" class="nav-icon"></fa-icon>
+        <span>Cargar Postulantes</span>
+      </a>
+      
+      <a routerLink="/banco-preguntas" routerLinkActive="active" class="nav-item">
+        <fa-icon [icon]="faBook" class="nav-icon"></fa-icon>
+        <span>Banco de Preguntas</span>
+      </a>
+      
+      <a routerLink="/correccion-examenes" routerLinkActive="active" class="nav-item">
+        <fa-icon [icon]="faClipboardCheck" class="nav-icon"></fa-icon>
+        <span>Corrección de Exámenes</span>
+      </a>
+      
+      <a routerLink="/resultados" routerLinkActive="active" class="nav-item">
+        <fa-icon [icon]="faChartLine" class="nav-icon"></fa-icon>
+        <span>Ver Resultados</span>
+      </a>
+    </nav>
+
+    <div class="system-info">
+      <h3>Sistema de Admisión Paralela</h3>
+      <p>Universidad Nacional Mayor de San Marcos</p>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <ng-content></ng-content>
+  </div>
+</div>

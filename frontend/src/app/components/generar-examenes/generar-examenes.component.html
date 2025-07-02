@@ -1,113 +1,183 @@
-<!-- Sidebar -->
-<div class="app-layout">
-  <div class="sidebar">
-    <div class="logo">
-      <div class="logo-icon">
-        <fa-icon [icon]="faSchool" style="color: #4d44b5; font-size: 24px;"></fa-icon>
+<app-layout>
+  <div class="page-header">
+    <h1>Generar Nuevos Exámenes</h1>
+    <p>Configure la cantidad de exámenes para generar</p>
+  </div>
+
+  <!-- Información del banco -->
+  <div class="info-card">
+    <div class="card-header">
+      <div class="card-icon primary">
+        <fa-icon [icon]="faBook" style="color: white; font-size: 20px;"></fa-icon>
       </div>
-      <h1>UNMSM</h1>
+      <h3>Estado del Banco de Preguntas</h3>
     </div>
     
-    <nav class="nav-menu">
-      <a routerLink="/dashboard" class="nav-item">
-        <fa-icon [icon]="faChartBar" class="nav-icon"></fa-icon>
-        <span>Dashboard</span>
-      </a>
-      <a routerLink="/generar-examenes" class="nav-item active">
-        <fa-icon [icon]="faFileAlt" class="nav-icon"></fa-icon>
-        <span>Generar Exámenes</span>
-      </a>
-      <a routerLink="/banco-preguntas" class="nav-item">
-        <fa-icon [icon]="faBook" class="nav-icon"></fa-icon>
-        <span>Banco de Preguntas</span>
-      </a>
-    </nav>
-    
-    <div class="system-info">
-      <h3>Sistema de Admisión Paralela</h3>
-      <p>Universidad Nacional Mayor de San Marcos</p>
+    <div class="info-content">
+      <div class="info-stat">
+        <span class="info-number">{{ totalPreguntas }}</span>
+        <span class="info-label">Preguntas disponibles</span>
+      </div>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="main-content">
-    <div class="page-header">
-      <h1>Generar Nuevos Exámenes</h1>
-      <p>Configure la cantidad de exámenes para generar</p>
-    </div>
-
-    <!-- Información del banco -->
-    <div class="info-card">
-      <div class="card-header">
-        <div class="card-icon primary">
-          <fa-icon [icon]="faBook" style="color: white; font-size: 20px;"></fa-icon>
-        </div>
-        <h3>Estado del Banco de Preguntas</h3>
+  <!-- Configuración -->
+  <div class="config-card">
+    <div class="card-header">
+      <div class="card-icon basic">
+        <fa-icon [icon]="faCog" style="color: white; font-size: 20px;"></fa-icon>
       </div>
-      
-      <div class="info-content">
-        <div class="info-stat">
-          <span class="info-number">{{ totalPreguntas }}</span>
-          <span class="info-label">Preguntas disponibles</span>
-        </div>
-      </div>
+      <h3>Configuración</h3>
     </div>
-
-    <!-- Configuración -->
-    <div class="config-card">
-      <div class="card-header">
-        <div class="card-icon basic">
-          <fa-icon [icon]="faCog" style="color: white; font-size: 20px;"></fa-icon>
-        </div>
-        <h3>Configuración</h3>
-      </div>
-      
-      <div class="form-group">
-        <label>Cantidad de exámenes a generar:</label>
-        <input 
-          type="number" 
-          [(ngModel)]="cantidadExamenes"
-          placeholder="Ej: 50"
-          min="1"
-          max="1000"
-          class="form-input">
-        <small class="help-text">Ingrese el número de exámenes que desea generar</small>
-      </div>
-    </div>
-
-    <!-- Botón de Generar -->
-    <div class="action-section">
-      <button 
-        class="btn-generate" 
-        [class.disabled]="!puedeGenerar"
-        [disabled]="!puedeGenerar"
-        (click)="iniciarGeneracion()">
-        <fa-icon [icon]="faCog" style="margin-right: 8px;"></fa-icon>
-        <span *ngIf="!cargando">Iniciar Generación de Exámenes</span>
-        <span *ngIf="cargando">Generando Exámenes...</span>
-      </button>
-
-      <button 
-        *ngIf="resultado"
-        class="btn-secondary"
-        (click)="limpiarExamenes()">
-        <fa-icon [icon]="faTrash" style="margin-right: 8px;"></fa-icon>
-        Limpiar Exámenes
-      </button>
-    </div>
-
-    <!-- Resultado -->
-    <div *ngIf="resultado" class="resultado-card">
-      <h3>✅ Exámenes Generados Exitosamente</h3>
-      <div class="resultado-content">
-        <pre>{{ resultado | json }}</pre>
-      </div>
-    </div>
-
-    <!-- Loading -->
-    <div *ngIf="cargando" class="loading-overlay">
-      <div class="loading-spinner"></div>
-      <p>Generando exámenes, por favor espere...</p>
+    
+    <div class="form-group">
+      <label for="cantidadExamenes">Cantidad de exámenes a generar:</label>
+      <input 
+        id="cantidadExamenes"
+        type="number" 
+        [(ngModel)]="cantidadExamenes"
+        placeholder="Ej: 50"
+        min="1"
+        max="1000"
+        class="form-input">
+      <small class="help-text">Ingrese el número de exámenes que desea generar</small>
     </div>
   </div>
-</div>
+
+  <!-- Botón de Generar -->
+  <div class="action-section">
+    <button 
+      class="btn-generate" 
+      [class.disabled]="!puedeGenerar"
+      [disabled]="!puedeGenerar"
+      (click)="iniciarGeneracion()"
+      title="Generar exámenes automáticamente para todos los postulantes">
+      <fa-icon [icon]="faCog" style="margin-right: 8px;"></fa-icon>
+      <span *ngIf="!cargando">Iniciar Generación de Exámenes</span>
+      <span *ngIf="cargando">Generando Exámenes...</span>
+    </button>
+
+    <button 
+      *ngIf="resultado"
+      class="btn-secondary"
+      (click)="limpiarExamenes()"
+      title="Eliminar solo los exámenes generados">
+      <fa-icon [icon]="faTrash" style="margin-right: 8px;"></fa-icon>
+      Limpiar Exámenes
+    </button>
+
+    <button 
+      *ngIf="resultado"
+      class="btn-danger"
+      (click)="limpiarBaseDatosCompleta()"
+      title="¡CUIDADO! Esto eliminará TODOS los datos: postulantes, exámenes, preguntas y resultados">
+      <fa-icon [icon]="faTrash" style="margin-right: 8px;"></fa-icon>
+      Limpiar Todo (BD Completa)
+    </button>
+  </div>
+
+  <!-- Resultado -->
+  <div *ngIf="resultado" class="resultado-card">
+    <h3>✅ Exámenes Generados Exitosamente</h3>
+    
+    <!-- Información general -->
+    <div class="resultado-info">
+      <div class="info-item">
+        <strong>Total de exámenes generados:</strong> {{ examenesDetalle.length }}
+      </div>
+      <div class="info-item">
+        <strong>Archivo ZIP completo:</strong> {{ resultado.nombreArchivo }}
+      </div>
+      <div class="info-item">
+        <a [href]="resultado.urlDescarga" target="_blank" class="btn-download">
+          <fa-icon [icon]="faDownload"></fa-icon>
+          Descargar ZIP Completo
+        </a>
+      </div>
+    </div>
+
+    <!-- Herramientas para Fichas Ópticas -->
+    <div class="fichas-opticas-tools">
+      <h4>🔧 Herramientas para Fichas Ópticas</h4>
+      <div class="tools-buttons">
+        <button 
+          class="btn-csv-plantilla"
+          (click)="generarPlantillaFichasOpticas()"
+          title="Generar archivo CSV con los IDs correctos para corrección de fichas ópticas">
+          <fa-icon [icon]="faFileCsv" style="margin-right: 8px;"></fa-icon>
+          Generar Plantilla CSV
+        </button>
+        
+        <button 
+          class="btn-mostrar-ids"
+          (click)="mostrarRelacionIds()"
+          title="Mostrar la relación entre IDs de postulantes y exámenes">
+          <fa-icon [icon]="faTable" style="margin-right: 8px;"></fa-icon>
+          Ver Relación de IDs
+        </button>
+      </div>
+      
+      <div class="tools-info">
+        <p><strong>💡 Importante:</strong> Use la plantilla CSV generada para la corrección de fichas ópticas. Contiene los IDs reales de postulantes y exámenes.</p>
+        <p><strong>📝 Pasos:</strong> 1️⃣ Genere la plantilla CSV → 2️⃣ Edite las respuestas → 3️⃣ Use el archivo en "Corrección de Exámenes"</p>
+      </div>
+    </div>
+
+    <!-- Tabla de exámenes detallada -->
+    <div *ngIf="examenesDetalle.length > 0" class="examenes-tabla-container">
+      <h4>📋 Detalle de Exámenes por Estudiante</h4>
+      <div class="tabla-wrapper">
+        <table class="examenes-tabla">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Estudiante</th>
+              <th>DNI</th>
+              <th>Carrera</th>
+              <th>Área</th>
+              <th>Archivo PDF</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let examen of examenesDetalle; let i = index" class="fila-examen">
+              <td class="texto-centro">{{ examen.postulanteId }}</td>
+              <td>
+                <div class="estudiante-info">
+                  <fa-icon [icon]="faUser" class="icono-estudiante"></fa-icon>
+                  <span>{{ examen.nombresPostulante }} {{ examen.apellidosPostulante }}</span>
+                </div>
+              </td>
+              <td class="texto-centro">
+                <div class="dni-info">
+                  <fa-icon [icon]="faIdCard" class="icono-dni"></fa-icon>
+                  <span>{{ examen.dni }}</span>
+                </div>
+              </td>
+              <td>{{ examen.carrera }}</td>
+              <td class="texto-centro">
+                <span class="badge-area" [class]="'area-' + examen.area">{{ examen.area }}</span>
+              </td>
+              <td class="texto-centro">{{ examen.nombreArchivoPdf }}</td>
+              <td class="texto-centro">
+                <button 
+                  class="btn-descargar-individual"
+                  (click)="descargarExamenIndividual(examen)"
+                  title="Descargar examen de {{ examen.nombresPostulante }}">
+                  <fa-icon [icon]="faDownload"></fa-icon>
+                  Descargar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Generando exámenes, por favor espere...</p>
+  </div>
+</app-layout>

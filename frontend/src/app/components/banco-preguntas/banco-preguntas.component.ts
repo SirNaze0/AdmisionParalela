@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BancoPreguntaService, BancoPreguntaDTO } from '../../services/banco-pregunta.service';
 
 // Font Awesome Icons
-import { faQuestionCircle, faChartBar, faBook, faSearch, faPlus, faEdit, faTrash, faUpload, faTimes, faEye, faSchool, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faQuestionCircle, faChartBar, faBook, faSearch, faPlus, faEdit, faTrash, faUpload, faTimes, faEye, faSchool, faFileAlt, faClipboardCheck, faTable } from '@fortawesome/free-solid-svg-icons';
 
 interface FiltrosBusqueda {
   busqueda: string;
@@ -29,6 +29,8 @@ export class BancoPreguntasComponent implements OnInit {
   faEye = faEye;
   faSchool = faSchool;
   faFileAlt = faFileAlt;
+  faClipboardCheck = faClipboardCheck;
+  faTable = faTable;
 
   preguntas: BancoPreguntaDTO[] = [];
   preguntasFiltradas: BancoPreguntaDTO[] = [];
@@ -45,6 +47,14 @@ export class BancoPreguntasComponent implements OnInit {
 
   cursosDisponibles: string[] = [];
   cargando = false;
+
+  // Modal properties
+  mostrarModal = false;
+  editandoPregunta = false;
+  preguntaFormulario = {
+    enunciado: '',
+    curso: ''
+  };
 
   constructor(private readonly bancoPreguntaService: BancoPreguntaService) { }
 
@@ -138,5 +148,36 @@ export class BancoPreguntasComponent implements OnInit {
         }
       });
     }
+  }
+
+  // Modal methods
+  abrirModalAgregarPregunta(): void {
+    this.editandoPregunta = false;
+    this.preguntaFormulario = {
+      enunciado: '',
+      curso: ''
+    };
+    this.mostrarModal = true;
+  }
+
+  cerrarModal(): void {
+    this.mostrarModal = false;
+    this.editandoPregunta = false;
+    this.preguntaFormulario = {
+      enunciado: '',
+      curso: ''
+    };
+  }
+
+  guardarPregunta(): void {
+    if (!this.preguntaFormulario.enunciado || !this.preguntaFormulario.curso) {
+      alert('Por favor complete todos los campos');
+      return;
+    }
+
+    // Aquí implementarías la lógica para guardar la pregunta
+    console.log('Guardando pregunta:', this.preguntaFormulario);
+    alert('Funcionalidad de agregar pregunta individual en desarrollo');
+    this.cerrarModal();
   }
 }
