@@ -2,6 +2,7 @@ package pe.edu.unmsm.sistemas.sistemaparalela.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.GsonBuilderUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import pe.edu.unmsm.sistemas.sistemaparalela.entity.*;
@@ -23,7 +24,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Component
-public class GeneradorParalelo{
+public class GeneradorParalelo {
     @Autowired
     private BancoPreguntaRepository bancoPreguntaRepository;
     @Autowired
@@ -32,16 +33,18 @@ public class GeneradorParalelo{
     private PdfService pdfService;
     @Autowired
     private PersistenciaExamenService persistenciaExamenService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     public String[] generar(int cant) throws IOException {
         List<BancoPregunta> bancoPreguntas = bancoPreguntaRepository.findAll();
         List<Postulante> postulantes = postulanteRepository.findAll();
-        
+
         // Validar que hay suficientes postulantes
         if (postulantes.size() < cant) {
             throw new IllegalArgumentException(
-                "No hay suficientes postulantes cargados. Se necesitan " + cant + 
-                " pero solo hay " + postulantes.size() + ". Debe cargar más postulantes primero."
+                    "No hay suficientes postulantes cargados. Se necesitan " + cant +
+                            " pero solo hay " + postulantes.size() + ". Debe cargar más postulantes primero."
             );
         }
 
@@ -79,35 +82,90 @@ public class GeneradorParalelo{
         guardarAsincrono(resultadosExamen);
         return nombresArchivos.toArray(new String[0]);
     }
+
     @Async
     public void guardarAsincrono(List<ResultadoExamen> resultados) {
-        for (ResultadoExamen res : resultados) {
-            try {
-                Examen examen = persistenciaExamenService.crearExamenConPostulante(res.getPostulanteId(), "paralelo");
-                List<Pregunta> preguntasBatch = new ArrayList<>();
-                for (BancoPregunta bp : res.getPreguntas()) {
-                    Pregunta pregunta = new Pregunta();
-                    pregunta.setEnunciadopregunta(bp.getEnunciado());
-                    pregunta.setExamen(examen);
+        // Usar directamente SQL Batch - LA MÁS RÁPIDA
+        guardarConSqlBatch(resultados);
+    }
 
-                    List<Respuesta> respuestas = new ArrayList<>();
+    private void guardarConSqlBatch(List<ResultadoExamen> resultados) {
+        System.out.println("Iniciando guardado batch para " + resultados.size() + " exámenes...");
+        long startTime = System.currentTimeMillis();
+
+        try {
+            // Preparar todos los datos en memoria
+            List<Object[]> examenesData = new ArrayList<>();
+            List<Object[]> preguntasData = new ArrayList<>();
+            List<Object[]> respuestasData = new ArrayList<>();
+
+            // Usar nextval directamente en el loop (más simple)
+            for (ResultadoExamen res : resultados) {
+                // Obtener ID para el examen
+                Long examenId = jdbcTemplate.queryForObject("SELECT nextval('pregunta_seq')", Long.class);
+
+                // Datos del examen
+                examenesData.add(new Object[]{
+                        examenId,
+                        "paralelo", // tipoexamen
+                        res.getPostulanteId() // postulanteid
+                });
+
+                // Procesar preguntas - ajustar según tu clase ResultadoExamen
+                for (BancoPregunta bp : res.getPreguntas()) { // Cambiar por el metodo correcto
+                    Long preguntaId = jdbcTemplate.queryForObject("SELECT nextval('pregunta_seq')", Long.class);
+
+                    // Datos de la pregunta
+                    preguntasData.add(new Object[]{
+                            preguntaId,
+                            bp.getEnunciado(), // enunciadopregunta
+                            examenId // examenid
+                    });
+
+                    // Procesar respuestas
                     for (BancoRespuesta br : bp.getBancoRespuestas()) {
-                        Respuesta respuesta = new Respuesta();
-                        respuesta.setPregunta(pregunta); // relación inversa
-                        respuesta.setTextorespuesta(br.getTextorespuesta());
-                        respuesta.setEscorrecta(br.getEscorrecta());
-                        respuestas.add(respuesta);
-                    }
-                    // Relación bidireccional
-                    pregunta.setRespuestas(respuestas);
+                        Long respuestaId = jdbcTemplate.queryForObject("SELECT nextval('pregunta_seq')", Long.class);
 
-                    preguntasBatch.add(pregunta);
+                        respuestasData.add(new Object[]{
+                                respuestaId,
+                                br.getTextorespuesta(), // textorespuesta
+                                br.getEscorrecta(), // escorrecta (boolean directo)
+                                preguntaId // preguntaid
+                        });
+                    }
                 }
-                // Solo pasas preguntas — respuestas se guardan por cascade
-                persistenciaExamenService.guardarTodo(preguntasBatch);
-            } catch (Exception e) {
-                System.out.println("Error en guardado asincrónico para postulante " + res.getPostulanteId() + ": " + e.getMessage());
             }
+
+            System.out.println("Datos preparados: " + examenesData.size() + " exámenes, " +
+                    preguntasData.size() + " preguntas, " + respuestasData.size() + " respuestas");
+
+            // Ejecutar inserts en batch usando los nombres reales de tu BD
+            jdbcTemplate.batchUpdate(
+                    "INSERT INTO examenes (examenid, tipoexamen, postulanteid) VALUES (?, ?, ?)",
+                    examenesData
+            );
+            System.out.println("✓ Exámenes guardados");
+
+            jdbcTemplate.batchUpdate(
+                    "INSERT INTO preguntas (preguntaid, enunciadopregunta, examenid) VALUES (?, ?, ?)",
+                    preguntasData
+            );
+            System.out.println("✓ Preguntas guardadas");
+
+            jdbcTemplate.batchUpdate(
+                    "INSERT INTO respuestas (respuestaid, textorespuesta, escorrecta, preguntaid) VALUES (?, ?, ?, ?)",
+                    respuestasData
+            );
+            System.out.println("✓ Respuestas guardadas");
+
+            long endTime = System.currentTimeMillis();
+            System.out.println("🚀 Guardado batch completado en " + (endTime - startTime) + "ms para " + resultados.size() + " exámenes");
+
+        } catch (Exception e) {
+            System.err.println("❌ Error en guardado batch: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error en guardado batch", e);
         }
     }
+
 }
